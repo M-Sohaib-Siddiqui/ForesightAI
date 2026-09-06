@@ -49,7 +49,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5 Core Capabilities Section - Boxed Cards (3 Top & 2 Bottom Centered) */}
+      {/* 5 Core Capabilities Section - Uniform Boxed Cards (3 Top & 2 Bottom Centered) */}
       <section id="features" className="py-16 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -102,8 +102,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="enterprise-card border-l-4 border-l-slate-900">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mb-4">
+            <div className="enterprise-card">
+              <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-900 mb-4">
                 <Users className="w-5 h-5" />
               </div>
               <h3 className="font-semibold text-slate-900 mb-2">5. Competitor & Market Intelligence</h3>
