@@ -27,16 +27,9 @@ export default function OnboardingPage() {
   });
 
   // Upload States
-  const [salesFile, setSalesFile] = useState<File | null>(null);
-  const [inventoryFile, setInventoryFile] = useState<File | null>(null);
-  const [financialFile, setFinancialFile] = useState<File | null>(null);
-
   const [salesValidation, setSalesValidation] = useState<any>(null);
   const [inventoryValidation, setInventoryValidation] = useState<any>(null);
   const [financialValidation, setFinancialValidation] = useState<any>(null);
-
-  const [uploading, setUploading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSimulateSalesUpload = async () => {
     setSalesValidation({
@@ -84,7 +77,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -115,84 +108,157 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* STEP 1: Business Profile Form */}
+        {/* STEP 1: Business Profile Form with Dropdown Selection Lists */}
         {step === 1 && (
           <div className="enterprise-card space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <h2 className="font-semibold text-slate-900">Company Context & Dependencies</h2>
-              <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded font-mono">Levi's Demo Profile Pre-filled</span>
+              <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded font-mono">Levi's Demo Profile Pre-selected</span>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
+              {/* 1. Business Name (Text Input) */}
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Business Name</label>
                 <input
                   type="text"
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                  placeholder="Enter business name (e.g. Levi's)"
                   className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
                 />
               </div>
 
+              {/* 2. Industry (Dropdown List) */}
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Industry</label>
-                <input
-                  type="text"
+                <select
                   value={profile.industry}
                   onChange={(e) => setProfile({ ...profile, industry: e.target.value })}
                   className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
-                />
+                >
+                  <option value="Apparel & Fashion Retail">Apparel & Fashion Retail</option>
+                  <option value="Consumer Electronics & Hardware">Consumer Electronics & Hardware</option>
+                  <option value="Fast Moving Consumer Goods (FMCG)">Fast Moving Consumer Goods (FMCG)</option>
+                  <option value="Food & Beverage / Restaurants">Food & Beverage / Restaurants</option>
+                  <option value="Automotive & Spare Parts">Automotive & Spare Parts</option>
+                  <option value="Industrial Manufacturing & Equipment">Industrial Manufacturing & Equipment</option>
+                  <option value="Healthcare & Pharmaceuticals">Healthcare & Pharmaceuticals</option>
+                  <option value="Luxury Goods & Jewelry">Luxury Goods & Jewelry</option>
+                </select>
               </div>
 
+              {/* 3. Business Type (Dropdown List) */}
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Business Type</label>
-                <input
-                  type="text"
+                <select
                   value={profile.business_type}
                   onChange={(e) => setProfile({ ...profile, business_type: e.target.value })}
                   className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
-                />
+                >
+                  <option value="Omnichannel / Direct-to-Consumer">Omnichannel / Direct-to-Consumer</option>
+                  <option value="Pure-Play E-Commerce">Pure-Play E-Commerce</option>
+                  <option value="Brick-and-Mortar Retail Store Network">Brick-and-Mortar Retail Store Network</option>
+                  <option value="B2B Wholesale & Distribution">B2B Wholesale & Distribution</option>
+                  <option value="Franchise Network">Franchise Network</option>
+                  <option value="Brand Manufacturer & Retailer">Brand Manufacturer & Retailer</option>
+                </select>
               </div>
 
+              {/* 4. Primary Market (Dropdown List) */}
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Primary Market</label>
-                <input
-                  type="text"
+                <select
                   value={profile.primary_market}
                   onChange={(e) => setProfile({ ...profile, primary_market: e.target.value })}
                   className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
-                />
+                >
+                  <option value="United States">United States</option>
+                  <option value="North America (US, Canada, Mexico)">North America (US, Canada, Mexico)</option>
+                  <option value="European Union (EU)">European Union (EU)</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Asia-Pacific (APAC)">Asia-Pacific (APAC)</option>
+                  <option value="Global / Multi-Region">Global / Multi-Region</option>
+                </select>
               </div>
             </div>
 
+            {/* 5. Product Categories (Dropdown List) */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Product Categories</label>
-              <input
-                type="text"
+              <select
                 value={profile.categories}
                 onChange={(e) => setProfile({ ...profile, categories: e.target.value })}
                 className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
-              />
+              >
+                <option value="Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids">
+                  Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids (Apparel)
+                </option>
+                <option value="Consumer Electronics, Smart Accessories, Audio Equipment">
+                  Consumer Electronics, Smart Accessories, Audio Equipment
+                </option>
+                <option value="Home & Living Goods, Furniture, Kitchenware">
+                  Home & Living Goods, Furniture, Kitchenware
+                </option>
+                <option value="Footwear, Athletic Apparel, Sportswear">
+                  Footwear, Athletic Apparel, Sportswear
+                </option>
+                <option value="Packaged Foods, Beverages, Grocery Items">
+                  Packaged Foods, Beverages, Grocery Items
+                </option>
+              </select>
             </div>
 
+            {/* 6. Supplier Manufacturing Countries (Dropdown List) */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Supplier Manufacturing Countries</label>
-              <input
-                type="text"
+              <select
                 value={profile.supplier_countries}
                 onChange={(e) => setProfile({ ...profile, supplier_countries: e.target.value })}
                 className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
-              />
+              >
+                <option value="Vietnam, Bangladesh, India, China, Mexico, Turkey">
+                  Vietnam, Bangladesh, India, China, Mexico, Turkey (Asia & Global Sourcing)
+                </option>
+                <option value="China, Vietnam, Cambodia">
+                  China, Vietnam, Cambodia (East Asia Sourcing)
+                </option>
+                <option value="India, Bangladesh, Pakistan">
+                  India, Bangladesh, Pakistan (South Asia Sourcing)
+                </option>
+                <option value="Mexico, Central America">
+                  Mexico, Central America (Nearshore Americas)
+                </option>
+                <option value="Europe & Turkey">
+                  Europe & Turkey (EMEA Sourcing)
+                </option>
+                <option value="Domestic Manufacturing Only">
+                  Domestic Manufacturing Only
+                </option>
+              </select>
             </div>
 
+            {/* 7. Import Dependency & Logistics Context (Dropdown List) */}
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">Import Dependency & Logistics Context</label>
-              <input
-                type="text"
+              <select
                 value={profile.import_dependency}
                 onChange={(e) => setProfile({ ...profile, import_dependency: e.target.value })}
                 className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
-              />
+              >
+                <option value="High (85% overseas garment manufacturing)">
+                  High (85% overseas garment manufacturing)
+                </option>
+                <option value="Moderate (40-60% overseas sourcing)">
+                  Moderate (40-60% overseas sourcing)
+                </option>
+                <option value="Low (10-30% imported components)">
+                  Low (10-30% imported components)
+                </option>
+                <option value="Domestic Sourcing Only (0% import dependency)">
+                  Domestic Sourcing Only (0% import dependency)
+                </option>
+              </select>
             </div>
 
             <div className="pt-4 flex justify-end">
