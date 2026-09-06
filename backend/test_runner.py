@@ -10,6 +10,7 @@ from app.services.scenario_engine import HistoricalScenarioEngine
 from app.services.risk_engine import RiskImpactEngine
 from app.services.briefing_engine import DailyBriefingEngine
 from app.services.advisor_engine import AIBusinessAdvisorEngine
+from app.services.competitor_engine import CompetitorIntelligenceEngine
 
 def run_tests():
     print("--- 1. Testing Default Business Profile ---")
@@ -43,11 +44,21 @@ def run_tests():
     resp = advisor.answer_question("How could today's situation affect my business?", profile, briefing)
     print("Advisor Question:", resp["question"])
     print("Advisor Answer Snippet:", resp["answer"][:120] + "...")
-    print("Retrieved Facts Count:", len(resp["retrieved_facts"]))
-    print("Model Estimates Count:", len(resp["model_estimates"]))
     assert len(resp["retrieved_facts"]) > 0
 
-    print("\nSUCCESS: All backend tests passed clean!")
+    print("\n--- 6. Testing Feature 5: Competitor & Market Intelligence ---")
+    comp_engine = CompetitorIntelligenceEngine()
+    analysis = comp_engine.get_analysis(profile)
+    print(f"Auto-Detected Competitors Count: {analysis['competitors_count']}")
+    print(f"Sample Competitor: {analysis['competitors'][0]['name']} ({analysis['competitors'][0]['website_url']})")
+    
+    # Test manual competitor addition
+    manual_added = comp_engine.add_manual_competitor("Gap Inc", "https://www.gap.com")
+    print(f"Manually Added Competitor: {manual_added['name']} ({manual_added['website_url']})")
+    updated_analysis = comp_engine.get_analysis(profile)
+    assert updated_analysis['competitors_count'] == analysis['competitors_count'] + 1
+
+    print("\nSUCCESS: All 5 feature backend engines verified clean!")
 
 if __name__ == "__main__":
     run_tests()

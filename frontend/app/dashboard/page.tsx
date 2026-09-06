@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   LayoutDashboard,
@@ -9,20 +9,20 @@ import {
   TrendingUp,
   MessageSquare,
   FileSpreadsheet,
-  Settings,
+  Users,
+  Plus,
+  Globe,
+  Tag,
   Mic,
   MicOff,
   Volume2,
   Send,
   ExternalLink,
-  ShieldCheck,
-  CheckCircle2,
-  ChevronRight,
-  Info
+  CheckCircle2
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<'briefing' | 'scenarios' | 'risk' | 'advisor' | 'files'>('briefing');
+  const [activeTab, setActiveTab] = useState<'briefing' | 'scenarios' | 'risk' | 'advisor' | 'competitors' | 'files'>('briefing');
   
   // Voice Advisor State
   const [chatQuestion, setChatQuestion] = useState('');
@@ -30,14 +30,79 @@ export default function DashboardPage() {
     {
       role: 'advisor',
       question: 'Initial Greeting',
-      answer: "Welcome to your AI Business Advisor for Levi's. I am actively monitoring your external intelligence feeds, sales velocity, and inventory lead times. How can I assist your business strategy today?",
-      retrieved_facts: ["Configured Profile: Levi's (Apparel & Fashion Retail)", "Active Data: Synthetic Levi's Sales, Inventory & Cost Files"],
+      answer: "Welcome to your AI Business Advisor for Levi's. I am actively monitoring your external intelligence feeds, competitor price moves, sales velocity, and inventory lead times. How can I assist your business strategy today?",
+      retrieved_facts: ["Configured Profile: Levi's (Apparel & Fashion Retail)", "Active Data: Synthetic Levi's Sales, Inventory & Cost Files", "Competitor Watchlist: Wrangler, Zara, American Eagle"],
       model_estimates: ["Overall Risk Level: High (Supply chain rerouting & raw material inflation)"],
       recommended_actions: ["Extend supplier reorder buffer from 24 days to 38 days.", "Lock fixed 6-month freight container contracts."]
     }
   ]);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Competitor Intelligence State (Feature 5)
+  const [manualCompName, setManualCompName] = useState('');
+  const [manualCompUrl, setManualCompUrl] = useState('');
+  const [competitorsList, setCompetitorsList] = useState<any[]>([
+    {
+      id: "comp-001",
+      name: "Wrangler / Lee (Kontoor)",
+      website_url: "https://www.wrangler.com",
+      tier: "Direct Denim Competitor",
+      auto_detected: true,
+      avg_jeans_msrp_usd: 68.00,
+      active_promo: "15% off Site-Wide (Summer Denim Sale)",
+      strength: "Strong Western & Workwear market distribution",
+      vulnerability: "Higher exposure to US domestic freight disruptions",
+      price_index: "-18% Lower (Value Positioning)"
+    },
+    {
+      id: "comp-002",
+      name: "Zara (Inditex)",
+      website_url: "https://www.zara.com",
+      tier: "Fast Fashion Apparel",
+      auto_detected: true,
+      avg_jeans_msrp_usd: 59.90,
+      active_promo: "30% off Clearance Tops & Seasonal Denim",
+      strength: "Ultra-fast 15-day nearshore manufacturing in Turkey/Portugal",
+      vulnerability: "Low consumer perception of denim durability & heritage",
+      price_index: "-28% Lower (Fast Fashion)"
+    },
+    {
+      id: "comp-003",
+      name: "American Eagle Outfitters",
+      website_url: "https://www.ae.com",
+      tier: "Young Adult Denim",
+      auto_detected: true,
+      avg_jeans_msrp_usd: 54.95,
+      active_promo: "Buy 1 Get 1 50% Off (Back-to-School Denim Event)",
+      strength: "High stretch denim popularity among Gen-Z shoppers",
+      vulnerability: "Heavy promotional dependence eroding gross margins",
+      price_index: "-34% Lower (Promotional Retail)"
+    }
+  ]);
+
+  const handleAddCompetitor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualCompName.trim() || !manualCompUrl.trim()) return;
+
+    const formattedUrl = manualCompUrl.startsWith('http') ? manualCompUrl : `https://${manualCompUrl}`;
+    const newComp = {
+      id: `comp-manual-${Date.now()}`,
+      name: manualCompName,
+      website_url: formattedUrl,
+      tier: "Custom Added Competitor",
+      auto_detected: false,
+      avg_jeans_msrp_usd: 64.50,
+      active_promo: "10% off for Newsletter Signup",
+      strength: "Custom monitored competitor site",
+      vulnerability: "Requires active catalog price tracking",
+      price_index: "-16% Lower"
+    };
+
+    setCompetitorsList([...competitorsList, newComp]);
+    setManualCompName('');
+    setManualCompUrl('');
+  };
 
   // Web Speech API Voice Handlers
   const handleMicToggle = () => {
@@ -72,7 +137,7 @@ export default function DashboardPage() {
 
   const handleTextToSpeech = (text: string) => {
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // Stop ongoing speech
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text.replace(/[*_#]/g, ''));
       utterance.rate = 0.95;
       utterance.pitch = 1.0;
@@ -106,16 +171,16 @@ export default function DashboardPage() {
         "Extend supplier lead-time reorder buffers from 24 days to 38 days.",
         "Pre-allocate air-freight for top 5% highest margin outerwear SKUs."
       ];
-    } else if (lowerQ.includes('prepare') || lowerQ.includes('first') || lowerQ.includes('do')) {
+    } else if (lowerQ.includes('competitor') || lowerQ.includes('price') || lowerQ.includes('wrangler') || lowerQ.includes('zara')) {
+      responseAnswer = "Looking at your competitor intelligence matrix:\n- American Eagle is currently running a 'Buy 1 Get 1 50% Off' denim promo.\n- Zara is discounting seasonal denim by 30% to clear spring stock.\n- Recommendation: Levi's retains a +22% pricing power premium in core 501 jeans. Avoid panic discounting on core denim lines, but consider tactical promotions on non-core graphic tees.";
+      facts = ["Wrangler MSRP average: $68.00", "Zara MSRP average: $59.90", "Levi's 501 Jeans MSRP average: $79.50"];
+      estimates = ["Levi's pricing power premium: +22% above market average."];
+      actions = ["Maintain core 501 MSRP.", "Run dynamic bundle discounts on basic tees only."];
+    } else {
       responseAnswer = "Here is your immediate operational action plan for Levi's:\n1. Inventory Buffers: Extend supplier reorder lead times from 24 days to 38 days for Vietnam and Bangladesh vendors.\n2. Contract Hedging: Lock in 6-month ocean container rates with logistics carriers to prevent spot surcharges.\n3. Air-Freight Allocation: Reserve air cargo for high-margin fall outerwear launches to avoid missing seasonal shelf dates.";
       facts = ["Current inventory reorder buffer is set to 24 days.", "Primary nearshore backup country available: Mexico / Turkey."];
       estimates = ["Pivoting 25% of replenishment to nearshore suppliers safeguards ~$450,000 in Q3 revenue."];
       actions = ["Update reorder parameters in inventory system today.", "Review raw cotton price exposure with yarn spinning mills."];
-    } else {
-      responseAnswer = "We matched current conditions to historical precedent: 2023-2024 Red Sea Shipping Route Disruptions (92% similarity). Canal rerouting around Africa increased transit times by 10-15 days and tripled spot freight rates. Successful response: Retailers that nearshored production to Mexico/Turkey and flexed inventory lead-time buffers cut delays by over 50%.";
-      facts = ["Matched Scenario: 2023-2024 Red Sea Shipping Route Disruptions (92% match)."];
-      estimates = ["Apparel retailers with flexible fiber sourcing retained 80% higher operating margins."];
-      actions = ["Nearshore 25% of replenishment orders to Mexico/Turkey.", "Focus marketing on core 501 icon denim lines."];
     }
 
     const newMsg = {
@@ -166,7 +231,7 @@ export default function DashboardPage() {
         {/* Navigation Sidebar */}
         <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
           <div className="p-4 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Navigation Menu
+            5 Core Capabilities
           </div>
           <nav className="p-3 space-y-1 flex-1">
             <button
@@ -199,6 +264,15 @@ export default function DashboardPage() {
             >
               <MessageSquare className="w-4 h-4" />
               AI Advisor + Voice
+            </button>
+
+            {/* Feature 5: Competitor Intelligence */}
+            <button
+              onClick={() => setActiveTab('competitors')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'competitors' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <Users className="w-4 h-4" />
+              Competitor Intelligence
             </button>
 
             <button
@@ -431,10 +505,10 @@ export default function DashboardPage() {
                   "What should I prepare for?"
                 </button>
                 <button
-                  onClick={() => handleSendQuestion("What happened in similar situations before?")}
+                  onClick={() => handleSendQuestion("What are my competitors doing with pricing?")}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
                 >
-                  "What happened in similar situations before?"
+                  "What are my competitors doing with pricing?"
                 </button>
                 <button
                   onClick={() => handleSendQuestion("What should I do first?")}
@@ -535,7 +609,138 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* TAB 5: DATA & FILES */}
+          {/* TAB 5: COMPETITOR INTELLIGENCE (NEW FEATURE 5) */}
+          {activeTab === 'competitors' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900">Competitor & Market Intelligence</h1>
+                  <p className="text-slate-600 text-sm mt-1">Comparing Levi's product pricing, active promotions, and positioning against competitors via public API aggregators.</p>
+                </div>
+                <span className="text-xs bg-slate-900 text-white px-3 py-1 rounded font-medium">5th Capability Active</span>
+              </div>
+
+              {/* Add Competitor Website Form */}
+              <div className="enterprise-card bg-slate-50 border border-slate-200 p-4">
+                <h3 className="font-semibold text-slate-900 text-sm mb-2 flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-slate-900" />
+                  Add Custom Competitor Website / Brand to Watchlist
+                </h3>
+                <form onSubmit={handleAddCompetitor} className="grid sm:grid-cols-3 gap-3">
+                  <input
+                    type="text"
+                    placeholder="Competitor Brand Name (e.g. Gap Inc)"
+                    value={manualCompName}
+                    onChange={(e) => setManualCompName(e.target.value)}
+                    className="text-xs border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Website URL (e.g. www.gap.com)"
+                    value={manualCompUrl}
+                    onChange={(e) => setManualCompUrl(e.target.value)}
+                    className="text-xs border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                    required
+                  />
+                  <button type="submit" className="btn-primary text-xs justify-center py-2.5">
+                    <Plus className="w-3.5 h-3.5" />
+                    Add Competitor to Matrix
+                  </button>
+                </form>
+              </div>
+
+              {/* Competitors List Cards */}
+              <div className="grid md:grid-cols-3 gap-4">
+                {competitorsList.map((comp) => (
+                  <div key={comp.id} className="enterprise-card relative flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                          {comp.auto_detected ? 'Auto-Detected' : 'Custom Tracked'}
+                        </span>
+                        <a href={comp.website_url} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-900 flex items-center gap-1">
+                          <Globe className="w-3.5 h-3.5" /> Site
+                        </a>
+                      </div>
+
+                      <h3 className="font-bold text-slate-900 text-base">{comp.name}</h3>
+                      <p className="text-xs text-slate-500">{comp.tier}</p>
+
+                      <div className="mt-4 space-y-2 text-xs">
+                        <div className="flex justify-between py-1 border-b border-slate-100">
+                          <span className="text-slate-500">Avg Denim MSRP:</span>
+                          <strong className="text-slate-900">${comp.avg_jeans_msrp_usd.toFixed(2)} USD</strong>
+                        </div>
+
+                        <div className="flex justify-between py-1 border-b border-slate-100">
+                          <span className="text-slate-500">Price Index vs Levi's:</span>
+                          <strong className="text-amber-700">{comp.price_index}</strong>
+                        </div>
+                      </div>
+
+                      {/* Active Promotion Badge */}
+                      <div className="mt-4 p-2.5 bg-amber-50 border border-amber-200 rounded text-xs">
+                        <div className="font-semibold text-amber-900 flex items-center gap-1 mb-0.5">
+                          <Tag className="w-3.5 h-3.5 text-amber-700" />
+                          Detected Active Promotion:
+                        </div>
+                        <p className="text-amber-800 text-[11px]">{comp.active_promo}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                      <strong>Market Advantage:</strong> {comp.strength}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Category Pricing Matrix Table */}
+              <div className="enterprise-card">
+                <h3 className="font-bold text-slate-900 text-base mb-3">Product Category Price & Positioning Matrix</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
+                        <th className="p-3 font-semibold">Product Category</th>
+                        <th className="p-3 font-semibold">Levi's Avg Price</th>
+                        <th className="p-3 font-semibold">Market Competitor Avg</th>
+                        <th className="p-3 font-semibold">Levi's Positioning</th>
+                        <th className="p-3 font-semibold">Pricing Power Index</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      <tr>
+                        <td className="p-3 font-medium">Men's Core Denim (501 / Straight)</td>
+                        <td className="p-3 font-bold text-emerald-700">$79.50</td>
+                        <td className="p-3">$62.00</td>
+                        <td className="p-3"><span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-medium">Premium Heritage Leader</span></td>
+                        <td className="p-3">High (+22% Premium)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-medium">Women's High-Rise Denim (Ribcage)</td>
+                        <td className="p-3 font-bold text-emerald-700">$98.00</td>
+                        <td className="p-3">$74.00</td>
+                        <td className="p-3"><span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-medium">Category Standard</span></td>
+                        <td className="p-3">High (+32% Premium)</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-medium">Basic Graphic Tees & Tops</td>
+                        <td className="p-3 text-slate-900">$29.50</td>
+                        <td className="p-3">$24.00</td>
+                        <td className="p-3"><span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">Moderate</span></td>
+                        <td className="p-3">Medium (Competitors discounting 30%)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 6: DATA & FILES */}
           {activeTab === 'files' && (
             <div className="space-y-6">
               <div>

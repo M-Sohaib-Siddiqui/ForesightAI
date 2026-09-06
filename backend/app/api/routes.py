@@ -6,10 +6,11 @@ from app.services.scenario_engine import HistoricalScenarioEngine
 from app.services.risk_engine import RiskImpactEngine
 from app.services.briefing_engine import DailyBriefingEngine
 from app.services.advisor_engine import AIBusinessAdvisorEngine
+from app.services.competitor_engine import CompetitorIntelligenceEngine
 
 router = APIRouter(prefix="/api")
 
-# State holders (in-memory for local runtime, syncs with Supabase when configured)
+# State holders
 current_profile: BusinessProfile = settings.LEVIS_DEFAULT_PROFILE
 sales_summary_cache: Optional[Dict[str, Any]] = None
 inventory_summary_cache: Optional[Dict[str, Any]] = None
@@ -18,6 +19,7 @@ financial_summary_cache: Optional[Dict[str, Any]] = None
 scenario_engine = HistoricalScenarioEngine()
 briefing_engine = DailyBriefingEngine()
 advisor_engine = AIBusinessAdvisorEngine()
+competitor_engine = CompetitorIntelligenceEngine()
 
 @router.get("/health")
 def health_check():
@@ -111,6 +113,22 @@ def advisor_chat(payload: Dict[str, Any] = Body(...)):
         profile=current_profile,
         briefing_context=briefing
     )
+
+# Feature 5: Competitor Analysis Endpoints
+@router.get("/competitors/analysis")
+def get_competitor_analysis():
+    return competitor_engine.get_analysis(current_profile)
+
+@router.post("/competitors/add")
+def add_competitor(payload: Dict[str, Any] = Body(...)):
+    name = payload.get("name", "").strip()
+    website_url = payload.get("website_url", "").strip()
+    category = payload.get("category", "Custom Tracked Competitor")
+    if not name or not website_url:
+        raise HTTPException(status_code=400, detail="Competitor name and website_url are required.")
+    
+    added = competitor_engine.add_manual_competitor(name=name, website_url=website_url, category=category)
+    return {"status": "success", "competitor": added}
 
 @router.post("/demo/reset")
 def reset_demo_data():
