@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-slate-900 selection:text-white;
+  }
+}
+
+.enterprise-card {
+  @apply bg-white border border-slate-200 rounded-lg shadow-sm p-6 hover:border-slate-300 transition-all;
+}
+
+.btn-primary {
+  @apply bg-slate-900 text-white font-medium px-5 py-2.5 rounded-md hover:bg-slate-800 transition-colors inline-flex items-center gap-2 text-sm;
+}
+
+.btn-secondary {
+  @apply bg-white text-slate-700 font-medium px-5 py-2.5 rounded-md border border-slate-300 hover:bg-slate-50 transition-colors inline-flex items-center gap-2 text-sm;
+}

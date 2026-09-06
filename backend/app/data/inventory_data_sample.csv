@@ -1,0 +1,12 @@
+SKU,Product Category,Product Name,Current Stock Units,Safety Stock Units,Reorder Point Units,Unit Cost (USD),Supplier Name,Supplier Country,Lead Time Days,Stock Status
+SKU-MJ-501,Men's Jeans,501 Original Jeans,1420,500,800,28.50,Denim Corp Vietnam,Vietnam,24,Optimal
+SKU-WJ-RIB,Women's Jeans,Ribcage Jeans,980,450,700,29.10,South Asia Garments,Bangladesh,28,Optimal
+SKU-MJ-511,Men's Jeans,511 Slim Men's Jeans,410,400,650,27.80,Denim Corp Vietnam,Vietnam,35,Low Stock Alert
+SKU-WJ-LTP,Women's Jeans,Loose Taper Women's Jeans,1150,500,800,31.00,Textile Mills India,India,21,Optimal
+SKU-TP-PRF,Tops,Perfect T-Shirt,2850,800,1200,6.20,LoomWorks China,China,14,Optimal
+SKU-OW-TRK,Outerwear,Denim Trucker Jacket,230,300,450,42.00,EuroTextiles Turkey,Turkey,42,Critical Low
+SKU-TP-ZIP,Tops,Original Housemark Zip Hoodie,890,350,550,18.40,LoomWorks China,China,18,Optimal
+SKU-AC-BLT,Accessories,Arlo Wide Prong Belt,1450,300,500,12.00,LeatherCraft Mexico,Mexico,12,Optimal
+SKU-WJ-WDL,Women's Jeans,Wide-Leg Jeans,620,400,650,30.50,South Asia Garments,Bangladesh,30,Low Stock Alert
+SKU-MC-CHN,Men's Chinos,Levi's XX Chinos,780,350,550,24.00,Textile Mills India,India,22,Optimal
+SKU-KD-JNS,Kids,Kids' Jeans,1100,400,600,15.50,Denim Corp Vietnam,Vietnam,25,Optimal

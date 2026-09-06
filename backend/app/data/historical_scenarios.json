@@ -1,0 +1,125 @@
+[
+  {
+    "id": "scenario-cotton-2022",
+    "title": "2022 Global Cotton Price Surge & Textile Inflation",
+    "date_range": "2021-10 to 2022-08",
+    "category": "Raw Material Price Spike",
+    "affected_sectors": ["Apparel", "Textiles", "Retail", "Consumer Goods"],
+    "triggering_conditions": "Severe drought in key US/Indian cotton belts combined with post-COVID supply chain bottlenecks and rising energy costs.",
+    "observable_indicators": [
+      "Cotton futures exceeding $1.40/lb",
+      "Yarn spinning mill capacity constraints",
+      "Apparel manufacturer COGS increase of 14-22%",
+      "Freight container rate spikes"
+    ],
+    "business_impacts": [
+      "Gross profit margin compression of 350-500 bps across denim apparel",
+      "Short-term working capital pressure due to higher inventory holding costs",
+      "Consumer pushback against price hikes in basic apparel segments"
+    ],
+    "successful_responses": [
+      "Pre-purchasing raw cotton futures & locking long-term supplier contracts 6 months out",
+      "Optimizing product blend ratios with sustainable synthetic fibers",
+      "Selective surgical price increases on premium core lines (e.g. 501 jeans) while holding entry-tier pricing"
+    ],
+    "failed_responses": [
+      "Across-the-board flat price increases causing immediate 15% drop in sales volume",
+      "Delaying inventory replenishment leading to stockouts during key seasonal peaks"
+    ],
+    "lessons": "Apparel retailers with flexible fiber sourcing and active hedging retained 80% higher operating margins than competitors relying on spot market purchases.",
+    "source_references": ["USDA Cotton & Wool Outlook 2022", "McKinsey State of Fashion 2022 Report", "Textile Exchange Price Index"],
+    "tags": ["cotton", "raw materials", "inflation", "cogs", "pricing strategy", "apparel"]
+  },
+  {
+    "id": "scenario-redsea-2023",
+    "title": "2023-2024 Red Sea Shipping Route Disruptions & Canal Rerouting",
+    "date_range": "2023-11 to 2024-06",
+    "category": "Supply Chain & Geopolitical",
+    "affected_sectors": ["Apparel", "Electronics", "Retail", "Automotive"],
+    "triggering_conditions": "Security threats in the Bab-el-Mandeb Strait forcing major container shipping lines to bypass the Suez Canal and reroute around Africa's Cape of Good Hope.",
+    "observable_indicators": [
+      "Transit time increases of 10-15 additional days from Asia to Europe/US East Coast",
+      "Asia-to-Europe spot container freight rates rising 250-300%",
+      "Inventory buffer depletion at regional distribution centers",
+      "Carrier emergency war risk surcharges ($500-$1,500 per TEU)"
+    ],
+    "business_impacts": [
+      "Lead time expansion from 25 days to 40+ days for Asian garment suppliers",
+      "Working capital locked in transit inventory",
+      "Missed seasonal floor dates for spring/summer clothing launches"
+    ],
+    "successful_responses": [
+      "Nearshoring production to Mexico, Turkey, and Central America for fast-replenishment categories",
+      "Air-freighting top 10% high-margin SKUs to meet critical launch dates",
+      "Extending reorder points by 14 days and increasing safety stock for high-velocity items"
+    ],
+    "failed_responses": [
+      "Relying solely on oceanic freight without updating lead-time buffers",
+      "Canceling seasonal orders mid-transit resulting in severe stockout penalties"
+    ],
+    "lessons": "Diversified geographical sourcing models (combining Asian bulk manufacturing with nearshore flex capacity) cut lead-time delays by over 50%.",
+    "source_references": ["S&P Global Supply Chain Intelligence 2024", "Drewry World Container Index", "Freightos Baltic Index 2024"],
+    "tags": ["shipping", "logistics", "red sea", "lead time", "nearshoring", "freight"]
+  },
+  {
+    "id": "scenario-inflation-2021",
+    "title": "2021-2022 Post-Pandemic Logistics Bottlenecks & Port Congestion",
+    "date_range": "2021-03 to 2022-04",
+    "category": "Supply Chain Bottleneck",
+    "affected_sectors": ["Consumer Goods", "Apparel", "Hardware", "Retail"],
+    "triggering_conditions": "Unprecedented surge in US consumer demand for physical goods colliding with port labor shortages and container imbalances.",
+    "observable_indicators": [
+      "Record container ship anchor queues outside LA/Long Beach ports (100+ ships)",
+      "Spot ocean freight rates peaking above $20,000 per 40ft container",
+      "Chassis and drayage truck shortages across inland rail hubs"
+    ],
+    "business_impacts": [
+      "Inbound inventory delays of 3 to 6 weeks",
+      "Excess seasonal inventory arriving after holiday peak, requiring heavy clearance discounting (30-50% off)",
+      "Operating profit margin erosion from elevated inbound logistics expense"
+    ],
+    "successful_responses": [
+      "Chartering dedicated smaller feeder vessels to alternative secondary ports (Oakland, Seattle)",
+      "Rationalizing low-margin SKU counts to focus container capacity on high-demand core products",
+      "Implementing dynamic landed-cost pricing models"
+    ],
+    "failed_responses": [
+      "Maintaining legacy lead-time assumptions resulting in empty store shelves during Q4 peak",
+      "Over-ordering inventory at peak freight rates leading to massive inventory write-downs in 2022"
+    ],
+    "lessons": "SKU rationalization and secondary port routing protected order fulfillment rates while competitors suffered severe stockouts.",
+    "source_references": ["Journal of Commerce Logistics Report 2021", "US Federal Maritime Commission Annual Report", "Levi Strauss & Co. Annual Filing 10-K 2022"],
+    "tags": ["port congestion", "freight rates", "inventory lag", "sku rationalization", "logistics"]
+  },
+  {
+    "id": "scenario-recession-2008",
+    "title": "2008 Global Financial Crisis & Consumer Discretionary pullback",
+    "date_range": "2008-09 to 2009-12",
+    "category": "Macroeconomic Contraction",
+    "affected_sectors": ["Apparel", "Retail", "Luxury", "Hospitality"],
+    "triggering_conditions": "Global credit freeze and housing market collapse leading to sharp rise in unemployment and severe drop in consumer confidence index.",
+    "observable_indicators": [
+      "US Retail apparel sales falling 8-12% year-over-year",
+      "Consumer confidence index dropping below 40",
+      "Promotional discounting frequency increasing across department stores",
+      "Tightening bank credit lines for middle-market retailers"
+    ],
+    "business_impacts": [
+      "Rapid inventory buildup resulting in liquidity pressure",
+      "Margin contraction driven by aggressive promotional discounting to liquidate stock",
+      "Supplier credit terms shortened from Net 60 to Net 30 or Cash on Delivery"
+    ],
+    "successful_responses": [
+      "Aggressive working capital management: reducing purchase order volume by 20% early in the downturn",
+      "Focusing marketing on timeless core value lines (501 / classic denim) over speculative trendy fashion lines",
+      "Renegotiating retail store lease terms and optimizing store footprint"
+    ],
+    "failed_responses": [
+      "Continuing full-scale seasonal inventory production based on pre-crisis sales forecasts",
+      "Deep panic discounting that permanently eroded brand equity and price perception"
+    ],
+    "lessons": "Preserving liquidity and pivoting to core value-oriented staples enabled market share gains during the recovery phase.",
+    "source_references": ["National Retail Federation Historical Archive", "Harvard Business Review Recession Playbook", "US Bureau of Economic Analysis 2009"],
+    "tags": ["recession", "consumer demand", "working capital", "liquidity", "core products", "promotions"]
+  }
+]

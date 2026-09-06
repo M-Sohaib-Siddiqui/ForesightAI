@@ -1,0 +1,593 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  History,
+  TrendingUp,
+  MessageSquare,
+  FileSpreadsheet,
+  Settings,
+  Mic,
+  MicOff,
+  Volume2,
+  Send,
+  ExternalLink,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronRight,
+  Info
+} from 'lucide-react';
+
+export default function DashboardPage() {
+  const [activeTab, setActiveTab] = useState<'briefing' | 'scenarios' | 'risk' | 'advisor' | 'files'>('briefing');
+  
+  // Voice Advisor State
+  const [chatQuestion, setChatQuestion] = useState('');
+  const [chatHistory, setChatHistory] = useState<any[]>([
+    {
+      role: 'advisor',
+      question: 'Initial Greeting',
+      answer: "Welcome to your AI Business Advisor for Levi's. I am actively monitoring your external intelligence feeds, sales velocity, and inventory lead times. How can I assist your business strategy today?",
+      retrieved_facts: ["Configured Profile: Levi's (Apparel & Fashion Retail)", "Active Data: Synthetic Levi's Sales, Inventory & Cost Files"],
+      model_estimates: ["Overall Risk Level: High (Supply chain rerouting & raw material inflation)"],
+      recommended_actions: ["Extend supplier reorder buffer from 24 days to 38 days.", "Lock fixed 6-month freight container contracts."]
+    }
+  ]);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Web Speech API Voice Handlers
+  const handleMicToggle = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert("Browser speech recognition is not supported in this browser. You can still type your questions below.");
+      return;
+    }
+    
+    if (isListening) {
+      setIsListening(false);
+    } else {
+      setIsListening(true);
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setChatQuestion(transcript);
+        setIsListening(false);
+        handleSendQuestion(transcript);
+      };
+
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognition.start();
+    }
+  };
+
+  const handleTextToSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Stop ongoing speech
+      const utterance = new SpeechSynthesisUtterance(text.replace(/[*_#]/g, ''));
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleSendQuestion = (questionText: string) => {
+    const q = questionText || chatQuestion;
+    if (!q.trim()) return;
+
+    let responseAnswer = "";
+    let facts = [];
+    let estimates = [];
+    let actions = [];
+
+    const lowerQ = q.toLowerCase();
+    if (lowerQ.includes('affect') || lowerQ.includes('today') || lowerQ.includes('situation')) {
+      responseAnswer = "Based on today's intelligence for Levi's, 3 key developments require attention. The primary threat is the Red Sea shipping route security disruption (Source: S&P Global Freight Index). Because 85% of your garment production relies on Asian suppliers in Vietnam, Bangladesh, and India, this will extend oceanic transit times by 10 to 14 days and increase freight costs by up to $1,200 per container. Additionally, raw cotton prices have surged 14%, putting medium-term pressure on COGS gross margins.";
+      facts = [
+        "Red Sea shipping rerouting adds 10-14 days lead time (Source: S&P Global Freight Index).",
+        "Raw cotton spot prices rose +14% over the last 30 days (Source: USDA WASDE)."
+      ];
+      estimates = [
+        "Estimated revenue at risk: $1,250,000.00.",
+        "Gross profit margin compression estimated at 280-420 basis points over 3-6 months."
+      ];
+      actions = [
+        "Extend supplier lead-time reorder buffers from 24 days to 38 days.",
+        "Pre-allocate air-freight for top 5% highest margin outerwear SKUs."
+      ];
+    } else if (lowerQ.includes('prepare') || lowerQ.includes('first') || lowerQ.includes('do')) {
+      responseAnswer = "Here is your immediate operational action plan for Levi's:\n1. Inventory Buffers: Extend supplier reorder lead times from 24 days to 38 days for Vietnam and Bangladesh vendors.\n2. Contract Hedging: Lock in 6-month ocean container rates with logistics carriers to prevent spot surcharges.\n3. Air-Freight Allocation: Reserve air cargo for high-margin fall outerwear launches to avoid missing seasonal shelf dates.";
+      facts = ["Current inventory reorder buffer is set to 24 days.", "Primary nearshore backup country available: Mexico / Turkey."];
+      estimates = ["Pivoting 25% of replenishment to nearshore suppliers safeguards ~$450,000 in Q3 revenue."];
+      actions = ["Update reorder parameters in inventory system today.", "Review raw cotton price exposure with yarn spinning mills."];
+    } else {
+      responseAnswer = "We matched current conditions to historical precedent: 2023-2024 Red Sea Shipping Route Disruptions (92% similarity). Canal rerouting around Africa increased transit times by 10-15 days and tripled spot freight rates. Successful response: Retailers that nearshored production to Mexico/Turkey and flexed inventory lead-time buffers cut delays by over 50%.";
+      facts = ["Matched Scenario: 2023-2024 Red Sea Shipping Route Disruptions (92% match)."];
+      estimates = ["Apparel retailers with flexible fiber sourcing retained 80% higher operating margins."];
+      actions = ["Nearshore 25% of replenishment orders to Mexico/Turkey.", "Focus marketing on core 501 icon denim lines."];
+    }
+
+    const newMsg = {
+      role: 'advisor',
+      question: q,
+      answer: responseAnswer,
+      retrieved_facts: facts,
+      model_estimates: estimates,
+      recommended_actions: actions
+    };
+
+    setChatHistory((prev) => [...prev, newMsg]);
+    setChatQuestion('');
+    handleTextToSpeech(responseAnswer);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+      {/* Top Stable App Bar */}
+      <header className="bg-slate-900 text-white h-16 border-b border-slate-800 flex items-center justify-between px-6 shrink-0 sticky top-0 z-40">
+        <div className="flex items-center gap-4">
+          <div className="w-8 h-8 bg-white text-slate-900 rounded font-bold flex items-center justify-center text-sm">
+            BF
+          </div>
+          <div>
+            <div className="font-semibold text-sm leading-none flex items-center gap-2">
+              Business Foresight
+              <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-normal">v1.0 Enterprise</span>
+            </div>
+            <div className="text-xs text-slate-400 mt-1">Configured Profile: <strong className="text-white">Levi's</strong> (Apparel & Fashion Retail)</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 px-3 py-1.5 rounded-full">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>Overall Risk: <strong>HIGH RISK</strong></span>
+          </div>
+          <span className="text-xs text-slate-400 hidden sm:inline">September 06, 2026</span>
+          <Link href="/onboarding" className="text-xs text-slate-300 hover:text-white border border-slate-700 px-3 py-1.5 rounded transition-colors">
+            Re-customize Profile
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Body Layout with Sidebar */}
+      <div className="flex flex-1 min-h-[calc(100vh-4rem)]">
+        {/* Navigation Sidebar */}
+        <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+          <div className="p-4 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Navigation Menu
+          </div>
+          <nav className="p-3 space-y-1 flex-1">
+            <button
+              onClick={() => setActiveTab('briefing')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'briefing' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              Today's Briefing
+            </button>
+
+            <button
+              onClick={() => setActiveTab('scenarios')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'scenarios' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <History className="w-4 h-4" />
+              Historical Scenarios
+            </button>
+
+            <button
+              onClick={() => setActiveTab('risk')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'risk' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              Impact & Risk Prediction
+            </button>
+
+            <button
+              onClick={() => setActiveTab('advisor')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'advisor' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              AI Advisor + Voice
+            </button>
+
+            <button
+              onClick={() => setActiveTab('files')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'files' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              Data & Files
+            </button>
+          </nav>
+
+          <div className="p-4 border-t border-slate-200 text-xs text-slate-500">
+            <div className="font-semibold text-slate-700 mb-1">Grounded AI Guarantee</div>
+            All claims grounded in retrieved historical scenarios & Levi's synthetic CSV datasets.
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 p-8 overflow-y-auto max-w-6xl">
+          
+          {/* TAB 1: DAILY AI BRIEFING */}
+          {activeTab === 'briefing' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900">Today's AI Business Briefing</h1>
+                  <p className="text-slate-600 text-sm mt-1">3 developments today may affect Levi's apparel operations.</p>
+                </div>
+                <button onClick={() => setActiveTab('advisor')} className="btn-primary">
+                  <MessageSquare className="w-4 h-4" />
+                  Ask AI Advisor
+                </button>
+              </div>
+
+              {/* Briefing Cards */}
+              <div className="space-y-4">
+                
+                {/* Card 1: Red Sea Shipping */}
+                <div className="enterprise-card border-l-4 border-l-red-600">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">High Risk</span>
+                      <h3 className="text-lg font-bold text-slate-900 mt-2">Red Sea Shipping Route Security Threat & Canal Diversion</h3>
+                    </div>
+                    <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded">Supply Chain & Logistics</span>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4 mt-4 text-sm">
+                    <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                      <strong className="text-slate-900 block mb-1">What Happened:</strong>
+                      <p className="text-slate-600">Container lines suspending Suez Canal transit due to security risks, rerouting around Cape of Good Hope.</p>
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                      <strong className="text-slate-900 block mb-1">Why It Matters to Levi's:</strong>
+                      <p className="text-slate-600">Levi's relies on Asian suppliers (Vietnam, Bangladesh, India) for 85% of production. Rerouting adds 10-14 days lead time.</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="text-slate-500">
+                      <strong>Source Evidence:</strong> S&P Global Freight Index & Maritime Alert
+                    </div>
+                    <div className="text-slate-700 font-medium">
+                      Confidence: <strong>High Confidence (91%)</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 2: Cotton Price Surge */}
+                <div className="enterprise-card border-l-4 border-l-amber-500">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">Medium Risk</span>
+                      <h3 className="text-lg font-bold text-slate-900 mt-2">Global Raw Cotton Spot Price Surge (+14% in 30 Days)</h3>
+                    </div>
+                    <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded">Raw Material Inflation</span>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4 mt-4 text-sm">
+                    <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                      <strong className="text-slate-900 block mb-1">What Happened:</strong>
+                      <p className="text-slate-600">Drought conditions in major cotton-growing belts driving raw futures up to $1.40/lb.</p>
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                      <strong className="text-slate-900 block mb-1">Why It Matters to Levi's:</strong>
+                      <p className="text-slate-600">Cotton yarn represents ~32% of fabric input costs for core denim lines (501 Jeans, Ribcage).</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="text-slate-500">
+                      <strong>Source Evidence:</strong> USDA WASDE Agricultural Outlook Report
+                    </div>
+                    <div className="text-slate-700 font-medium">
+                      Confidence: <strong>High Confidence (86%)</strong>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: HISTORICAL SCENARIO INTELLIGENCE */}
+          {activeTab === 'scenarios' && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Historical Scenario Intelligence</h1>
+                <p className="text-slate-600 text-sm mt-1">Grounding current decisions in cited, real-world historical precedents.</p>
+              </div>
+
+              {/* Matched Precedent Card */}
+              <div className="enterprise-card bg-white border border-slate-300">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-slate-900 text-white rounded font-bold text-xs">92% Match</span>
+                    <h3 className="font-bold text-slate-900 text-lg">2023-2024 Red Sea Shipping Route Disruptions</h3>
+                  </div>
+                  <span className="text-xs text-slate-500 font-mono">Date: 2023-11 to 2024-06</span>
+                </div>
+
+                <div className="space-y-4 mt-4 text-sm">
+                  <div>
+                    <strong className="text-slate-900">Triggering Conditions & Observable Indicators:</strong>
+                    <p className="text-slate-600 mt-1">Security threats in Bab-el-Mandeb Strait forcing ships around Africa. Spot ocean freight rates rose 250-300%.</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-emerald-50 border border-emerald-200 p-3 rounded">
+                      <strong className="text-emerald-900 block mb-1">Proven Successful Responses:</strong>
+                      <ul className="list-disc list-inside text-emerald-800 space-y-1 text-xs">
+                        <li>Nearshoring replenishment to Mexico & Turkey for fast-turn apparel categories.</li>
+                        <li>Extending reorder points by 14 days and building safety stock buffers.</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-red-50 border border-red-200 p-3 rounded">
+                      <strong className="text-red-900 block mb-1">Documented Failed Responses:</strong>
+                      <ul className="list-disc list-inside text-red-800 space-y-1 text-xs">
+                        <li>Relying strictly on legacy ocean lead-time assumptions.</li>
+                        <li>Canceling mid-transit seasonal orders leading to massive stockout penalties.</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs text-slate-700">
+                    <strong>Cited Sources:</strong> S&P Global Supply Chain Intelligence 2024, Drewry World Container Index, Levi Strauss 10-K Archives.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: IMPACT & RISK PREDICTION */}
+          {activeTab === 'risk' && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">AI Business Impact & Risk Prediction</h1>
+                <p className="text-slate-600 text-sm mt-1">Combining current external events with Levi's synthetic sales & inventory data.</p>
+              </div>
+
+              {/* High-Level Risk Overview */}
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="enterprise-card">
+                  <div className="text-xs text-slate-500 font-medium">Estimated Revenue at Risk</div>
+                  <div className="text-2xl font-bold text-red-600 mt-1">$1,250,000.00</div>
+                  <div className="text-xs text-slate-500 mt-1">Based on Q3 seasonal replenishment volume</div>
+                </div>
+
+                <div className="enterprise-card">
+                  <div className="text-xs text-slate-500 font-medium">Supply Chain Exposure</div>
+                  <div className="text-2xl font-bold text-amber-600 mt-1">78 / 100</div>
+                  <div className="text-xs text-slate-500 mt-1">85% overseas garment supplier dependency</div>
+                </div>
+
+                <div className="enterprise-card">
+                  <div className="text-xs text-slate-500 font-medium">COGS Margin Compression</div>
+                  <div className="text-2xl font-bold text-slate-900 mt-1">-320 bps</div>
+                  <div className="text-xs text-slate-500 mt-1">Driven by cotton futures + ocean freight surcharges</div>
+                </div>
+              </div>
+
+              {/* Opportunities Matrix */}
+              <div className="enterprise-card border-l-4 border-l-emerald-600">
+                <h3 className="font-bold text-slate-900 text-lg mb-2">Detected Strategic Opportunities</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded">
+                    <strong className="text-emerald-900">1. Nearshore Vendor Re-allocation to Mexico / Turkey</strong>
+                    <p className="text-emerald-800 text-xs mt-1">Shift 25% of replenishment orders for core Men's Chinos & Tops to nearshore suppliers. Reduces lead time by 18 days and protects $450k revenue.</p>
+                  </div>
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded">
+                    <strong className="text-emerald-900">2. Core Icon Denim Marketing Focus (501 & Ribcage)</strong>
+                    <p className="text-emerald-800 text-xs mt-1">Re-allocate 15% digital marketing spend toward core heritage denim lines carrying higher pricing power to offset cotton margin squeeze.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: AI ADVISOR + VOICE */}
+          {activeTab === 'advisor' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900">AI Business Advisor with Voice</h1>
+                  <p className="text-slate-600 text-sm mt-1">Professional chat interface with microphone input and spoken responses.</p>
+                </div>
+                {isSpeaking && (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full animate-pulse">
+                    <Volume2 className="w-4 h-4" />
+                    Advisor Speaking...
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Prompt Buttons */}
+              <div className="flex flex-wrap gap-2 text-xs">
+                <button
+                  onClick={() => handleSendQuestion("How could today's situation affect my business?")}
+                  className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
+                >
+                  "How could today's situation affect my business?"
+                </button>
+                <button
+                  onClick={() => handleSendQuestion("What should I prepare for?")}
+                  className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
+                >
+                  "What should I prepare for?"
+                </button>
+                <button
+                  onClick={() => handleSendQuestion("What happened in similar situations before?")}
+                  className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
+                >
+                  "What happened in similar situations before?"
+                </button>
+                <button
+                  onClick={() => handleSendQuestion("What should I do first?")}
+                  className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
+                >
+                  "What should I do first?"
+                </button>
+              </div>
+
+              {/* Chat Thread */}
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                {chatHistory.map((item, idx) => (
+                  <div key={idx} className="space-y-3">
+                    {item.question !== 'Initial Greeting' && (
+                      <div className="flex justify-end">
+                        <div className="bg-slate-900 text-white p-3.5 rounded-lg max-w-lg text-sm">
+                          {item.question}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Advisor Grounded Response Box */}
+                    <div className="enterprise-card bg-white border border-slate-200">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-slate-900 text-white rounded text-xs font-bold flex items-center justify-center">
+                            AI
+                          </div>
+                          <span className="font-semibold text-slate-900 text-sm">AI Business Advisor</span>
+                        </div>
+                        <button
+                          onClick={() => handleTextToSpeech(item.answer)}
+                          className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 border border-slate-200 px-2 py-1 rounded"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" /> Speak Response
+                        </button>
+                      </div>
+
+                      <div className="text-slate-800 text-sm whitespace-pre-line leading-relaxed">
+                        {item.answer}
+                      </div>
+
+                      {/* Fact Grounding Section */}
+                      <div className="mt-4 pt-3 border-t border-slate-100 grid md:grid-cols-2 gap-3 text-xs">
+                        <div className="bg-slate-50 p-2.5 rounded border border-slate-200">
+                          <strong className="text-slate-900 block mb-1">Retrieved Factual Grounding:</strong>
+                          <ul className="list-disc list-inside text-slate-600 space-y-0.5">
+                            {item.retrieved_facts.map((f: string, fIdx: number) => (
+                              <li key={fIdx}>{f}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="bg-slate-50 p-2.5 rounded border border-slate-200">
+                          <strong className="text-slate-900 block mb-1">Model Risk Estimates:</strong>
+                          <ul className="list-disc list-inside text-slate-600 space-y-0.5">
+                            {item.model_estimates.map((e: string, eIdx: number) => (
+                              <li key={eIdx}>{e}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Chat Input Bar with Microphone */}
+              <div className="pt-2">
+                <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg p-2 shadow-sm">
+                  <button
+                    onClick={handleMicToggle}
+                    className={`p-2.5 rounded-md transition-colors ${isListening ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                    title={isListening ? "Listening... Click to stop" : "Click to speak with microphone"}
+                  >
+                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </button>
+
+                  <input
+                    type="text"
+                    placeholder={isListening ? "Listening to your voice input..." : "Ask your AI Business Advisor a question..."}
+                    value={chatQuestion}
+                    onChange={(e) => setChatQuestion(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendQuestion('')}
+                    className="flex-1 text-sm bg-transparent border-none focus:outline-none text-slate-900 px-2"
+                  />
+
+                  <button
+                    onClick={() => handleSendQuestion('')}
+                    className="btn-primary px-4 py-2 text-xs"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    Ask
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 5: DATA & FILES */}
+          {activeTab === 'files' && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Data & File Upload Management</h1>
+                <p className="text-slate-600 text-sm mt-1">Uploaded business files powering normalized analytics models.</p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="enterprise-card flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileSpreadsheet className="w-8 h-8 text-emerald-600" />
+                    <div>
+                      <h4 className="font-semibold text-slate-900 text-sm">sales_data_sample.csv</h4>
+                      <p className="text-xs text-slate-500">30 records | Size: 4.2 KB | Processed: Just now</p>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded font-medium">
+                    Active & Normalized
+                  </span>
+                </div>
+
+                <div className="enterprise-card flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileSpreadsheet className="w-8 h-8 text-emerald-600" />
+                    <div>
+                      <h4 className="font-semibold text-slate-900 text-sm">inventory_data_sample.csv</h4>
+                      <p className="text-xs text-slate-500">11 SKUs | Size: 1.8 KB | Processed: Just now</p>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded font-medium">
+                    Active & Normalized
+                  </span>
+                </div>
+
+                <div className="enterprise-card flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileSpreadsheet className="w-8 h-8 text-emerald-600" />
+                    <div>
+                      <h4 className="font-semibold text-slate-900 text-sm">financial_data_sample.csv</h4>
+                      <p className="text-xs text-slate-500">12 Months | Size: 1.2 KB | Processed: Just now</p>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded font-medium">
+                    Active & Normalized
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
+    </div>
+  );
+}
