@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, ShieldCheck, TrendingUp, History, AlertTriangle, Mic } from 'lucide-react';
+import { ArrowRight, ShieldCheck, TrendingUp, History, AlertTriangle, Mic, Users } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -49,21 +49,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4 Locked Features Grid */}
+      {/* 5 Core Capabilities Grid */}
       <section id="features" className="py-16 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-slate-900">Four Locked Product Capabilities</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Five Core Product Capabilities</h2>
             <p className="text-slate-600 text-sm mt-2">Delivering grounded, explainable decision support without unverified claims.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="enterprise-card">
               <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-900 mb-4">
                 <AlertTriangle className="w-5 h-5" />
               </div>
-              <h3 className="font-semibold text-slate-900 mb-2">1. Daily AI Business Briefing</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="font-semibold text-slate-900 mb-2 text-sm">1. Daily AI Business Briefing</h3>
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Prioritized daily briefing showing what happened, why it matters, short/medium-term impact, risk level, evidence source, and recommended actions.
               </p>
             </div>
@@ -72,8 +72,8 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-900 mb-4">
                 <History className="w-5 h-5" />
               </div>
-              <h3 className="font-semibold text-slate-900 mb-2">2. Historical Scenario Intelligence</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="font-semibold text-slate-900 mb-2 text-sm">2. Historical Scenario Intelligence</h3>
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Semantic retrieval matching current events to historical inflation periods, shipping bottlenecks, and geopolitical events with cited precedent evidence.
               </p>
             </div>
@@ -82,8 +82,8 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-900 mb-4">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <h3 className="font-semibold text-slate-900 mb-2">3. Impact & Risk Prediction</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="font-semibold text-slate-900 mb-2 text-sm">3. Impact & Risk Prediction</h3>
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Combines external news with internal sales, inventory, and cost files to estimate supply, cost, demand, revenue risk, and emerging opportunities.
               </p>
             </div>
@@ -92,9 +92,20 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-900 mb-4">
                 <Mic className="w-5 h-5" />
               </div>
-              <h3 className="font-semibold text-slate-900 mb-2">4. AI Advisor with Voice</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="font-semibold text-slate-900 mb-2 text-sm">4. AI Advisor with Voice</h3>
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Conversational advisor supporting text and microphone voice input, clearly separating retrieved facts, model estimates, and practical recommendations.
+              </p>
+            </div>
+
+            {/* Feature 5 Card */}
+            <div className="enterprise-card border-l-4 border-l-slate-900">
+              <div className="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mb-4">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-slate-900 mb-2 text-sm">5. Competitor & Market Intelligence</h3>
+              <p className="text-slate-600 text-xs leading-relaxed">
+                Auto-detects competitors + custom competitor URL addition to compare catalog pricing, MSRP benchmarks, and active promotional campaigns.
               </p>
             </div>
           </div>
