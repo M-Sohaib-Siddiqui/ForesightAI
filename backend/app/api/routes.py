@@ -1,5 +1,7 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body, Header
 from typing import Dict, Any, Optional
+import hashlib
+import time
 from app.core.config import settings, BusinessProfile
 from app.services.analytics_engine import AnalyticsEngine
 from app.services.scenario_engine import HistoricalScenarioEngine
@@ -16,11 +18,96 @@ sales_summary_cache: Optional[Dict[str, Any]] = None
 inventory_summary_cache: Optional[Dict[str, Any]] = None
 financial_summary_cache: Optional[Dict[str, Any]] = None
 
+# Simple user database (Cloud production syncs with Supabase Auth)
+users_db: Dict[str, Dict[str, Any]] = {
+    "demo@levis.com": {
+        "id": "usr-demo-001",
+        "email": "demo@levis.com",
+        "password_hash": hashlib.sha256("demo1234".encode()).hexdigest(),
+        "created_at": "2026-09-06"
+    }
+}
+active_tokens: Dict[str, str] = {}
+
 scenario_engine = HistoricalScenarioEngine()
 briefing_engine = DailyBriefingEngine()
 advisor_engine = AIBusinessAdvisorEngine()
 competitor_engine = CompetitorIntelligenceEngine()
 
+# --- AUTHENTICATION ENDPOINTS ---
+@router.post("/auth/signup")
+def signup(payload: Dict[str, Any] = Body(...)):
+    email = payload.get("email", "").strip().lower()
+    password = payload.get("password", "").strip()
+    business_name = payload.get("business_name", "My Business").strip()
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Email and password are required.")
+    if email in users_db:
+        raise HTTPException(status_code=400, detail="An account with this email already exists.")
+
+    user_id = f"usr-{int(time.time())}"
+    users_db[email] = {
+        "id": user_id,
+        "email": email,
+        "password_hash": hashlib.sha256(password.encode()).hexdigest(),
+        "created_at": "2026-09-06"
+    }
+    
+    token = f"jwt-token-{user_id}"
+    active_tokens[token] = email
+
+    return {
+        "status": "success",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": user_id, "email": email, "business_name": business_name}
+    }
+
+@router.post("/auth/login")
+def login(payload: Dict[str, Any] = Body(...)):
+    email = payload.get("email", "").strip().lower()
+    password = payload.get("password", "").strip()
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Email and password are required.")
+    
+    user = users_db.get(email)
+    if not user or user["password_hash"] != hashlib.sha256(password.encode()).hexdigest():
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    token = f"jwt-token-{user['id']}"
+    active_tokens[token] = email
+
+    return {
+        "status": "success",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": user["id"], "email": user["email"]}
+    }
+
+@router.get("/auth/me")
+def get_current_user(authorization: Optional[str] = Header(None)):
+    if not authorization:
+        # Default fallback session for unauthenticated demo
+        return {"authenticated": False, "user": {"id": "usr-demo-001", "email": "demo@levis.com"}}
+    
+    token = authorization.replace("Bearer ", "")
+    email = active_tokens.get(token)
+    if not email or email not in users_db:
+        return {"authenticated": False, "user": None}
+    
+    user = users_db[email]
+    return {"authenticated": True, "user": {"id": user["id"], "email": user["email"]}}
+
+@router.post("/auth/logout")
+def logout(authorization: Optional[str] = Header(None)):
+    if authorization:
+        token = authorization.replace("Bearer ", "")
+        active_tokens.pop(token, None)
+    return {"status": "success", "message": "Logged out successfully."}
+
+# --- SYSTEM & BUSINESS ENDPOINTS ---
 @router.get("/health")
 def health_check():
     return {"status": "ok", "service": "Business Foresight API", "version": settings.VERSION}
@@ -114,7 +201,6 @@ def advisor_chat(payload: Dict[str, Any] = Body(...)):
         briefing_context=briefing
     )
 
-# Feature 5: Competitor Analysis Endpoints
 @router.get("/competitors/analysis")
 def get_competitor_analysis():
     return competitor_engine.get_analysis(current_profile)

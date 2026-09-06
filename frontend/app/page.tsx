@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, ShieldCheck, TrendingUp, History, AlertTriangle, Mic, Users } from 'lucide-react';
+import { ArrowRight, ShieldCheck, TrendingUp, History, AlertTriangle, Mic, Users, UserCheck } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -18,8 +18,11 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-slate-900 transition-colors">How It Works</a>
             <a href="#security" className="hover:text-slate-900 transition-colors">Data Security</a>
-            <Link href="/onboarding" className="btn-primary">
-              Customize Your Business
+            <Link href="/login" className="text-slate-700 hover:text-slate-900 font-medium">
+              Sign In
+            </Link>
+            <Link href="/signup" className="btn-primary">
+              Create Account
               <ArrowRight className="w-4 h-4" />
             </Link>
           </nav>
@@ -49,7 +52,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5 Core Capabilities Section - Uniform Boxed Cards (3 Top & 2 Bottom Centered) */}
+      {/* 5 Core Capabilities Section - Boxed Cards (3 Top & 2 Bottom Centered) */}
       <section id="features" className="py-16 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -166,7 +169,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>© 2026 Business Foresight Platform. All rights reserved.</div>
           <div className="flex gap-6">
-            <Link href="/onboarding" className="hover:text-white transition-colors">Start Demo Onboarding</Link>
+            <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
+            <Link href="/onboarding" className="hover:text-white transition-colors">Demo Onboarding</Link>
             <Link href="/dashboard" className="hover:text-white transition-colors">Direct Dashboard View</Link>
           </div>
         </div>
