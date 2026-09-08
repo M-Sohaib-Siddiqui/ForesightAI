@@ -6,13 +6,13 @@ from app.api.routes import router
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="Business Foresight AI Early-Warning & Decision Support API"
+    description="ForesightAI Business Early-Warning & Decision Support API"
 )
 
 # CORS middleware for Next.js frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Production limits to CORS_ORIGINS env var
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,7 +23,7 @@ app.include_router(router)
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to Business Foresight API",
+        "message": "Welcome to ForesightAI API",
         "docs": "/docs",
         "health": "/api/health"
     }

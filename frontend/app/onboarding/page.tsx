@@ -81,7 +81,10 @@ export default function OnboardingPage() {
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="font-semibold text-slate-900 text-lg">Business Foresight</div>
+          <div className="font-semibold text-slate-900 text-lg flex items-center gap-2">
+            <div className="w-6 h-6 bg-slate-900 text-white rounded font-bold flex items-center justify-center text-[10px]">FAI</div>
+            ForesightAI
+          </div>
           <div className="text-xs text-slate-500 font-medium">Onboarding & Data Personalization</div>
         </div>
       </header>
@@ -89,7 +92,7 @@ export default function OnboardingPage() {
       {/* Main Form Container */}
       <main className="max-w-3xl mx-auto px-6 py-10 w-full flex-1">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Customize your Business Foresight</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Customize your ForesightAI</h1>
           <p className="text-slate-600 text-sm mt-1">
             Personalize early-warning monitoring and risk analysis around your company's actual operations.
           </p>

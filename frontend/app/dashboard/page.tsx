@@ -61,7 +61,7 @@ export default function DashboardPage() {
     {
       role: 'advisor',
       question: 'Initial Greeting',
-      answer: "Welcome to your AI Business Advisor for Levi's. I am actively monitoring your external intelligence feeds, competitor price moves, sales velocity, and inventory lead times. How can I assist your business strategy today?",
+      answer: "Welcome to your ForesightAI Business Advisor for Levi's. I am actively monitoring your external intelligence feeds, competitor price moves, sales velocity, and inventory lead times. How can I assist your business strategy today?",
       retrieved_facts: ["Configured Profile: Levi's (Apparel & Fashion Retail)", "Active Data: Synthetic Levi's Sales, Inventory & Cost Files", "Competitor Watchlist: Wrangler, Zara, American Eagle"],
       model_estimates: ["Overall Risk Level: High (Supply chain rerouting & raw material inflation)"],
       recommended_actions: ["Extend supplier reorder buffer from 24 days to 38 days.", "Lock fixed 6-month freight container contracts."]
@@ -233,12 +233,12 @@ export default function DashboardPage() {
       {/* Top Stable App Bar with User Account & API Key Diagnostics */}
       <header className="bg-slate-900 text-white h-16 border-b border-slate-800 flex items-center justify-between px-6 shrink-0 sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 bg-white text-slate-900 rounded font-bold flex items-center justify-center text-sm">
-            BF
+          <div className="w-8 h-8 bg-white text-slate-900 rounded font-bold flex items-center justify-center text-xs tracking-wider">
+            FAI
           </div>
           <div>
             <div className="font-semibold text-sm leading-none flex items-center gap-2">
-              Business Foresight
+              ForesightAI
               <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-normal">v1.0 Enterprise</span>
             </div>
             <div className="text-xs text-slate-400 mt-1">Configured Profile: <strong className="text-white">Levi's</strong> (Apparel & Fashion Retail)</div>
@@ -290,7 +290,7 @@ export default function DashboardPage() {
             <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2 font-semibold text-sm">
                 <Key className="w-4 h-4 text-amber-400" />
-                API Connection Diagnostics & Data Sources
+                ForesightAI API Connection Diagnostics & Data Sources
               </div>
               <button onClick={() => setShowDiagnosticsModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -666,7 +666,7 @@ export default function DashboardPage() {
                           <div className="w-6 h-6 bg-slate-900 text-white rounded text-xs font-bold flex items-center justify-center">
                             AI
                           </div>
-                          <span className="font-semibold text-slate-900 text-sm">AI Business Advisor</span>
+                          <span className="font-semibold text-slate-900 text-sm">ForesightAI Advisor</span>
                         </div>
                         <button
                           onClick={() => handleTextToSpeech(item.answer)}
@@ -718,7 +718,7 @@ export default function DashboardPage() {
 
                   <input
                     type="text"
-                    placeholder={isListening ? "Listening to your voice input..." : "Ask your AI Business Advisor a question..."}
+                    placeholder={isListening ? "Listening to your voice input..." : "Ask your ForesightAI Advisor a question..."}
                     value={chatQuestion}
                     onChange={(e) => setChatQuestion(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendQuestion('')}

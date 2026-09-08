@@ -26,7 +26,7 @@ class BusinessProfile(BaseModel):
     currency: str = "USD"
 
 class Settings:
-    PROJECT_NAME: str = "Business Foresight API"
+    PROJECT_NAME: str = "ForesightAI API"
     VERSION: str = "1.0.0"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     PORT: int = int(os.getenv("PORT", 8000))
@@ -40,7 +40,7 @@ class Settings:
     
     # Voice API Settings
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
-    ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Default Rachel Voice ID
+    ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
     
     # Pre-configured default test profile
     LEVIS_DEFAULT_PROFILE: BusinessProfile = BusinessProfile()

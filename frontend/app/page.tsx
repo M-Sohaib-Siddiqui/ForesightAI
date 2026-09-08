@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, ShieldCheck, TrendingUp, History, AlertTriangle, Mic, Users, UserCheck } from 'lucide-react';
+import { ArrowRight, ShieldCheck, TrendingUp, History, AlertTriangle, Mic, Users } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -9,10 +9,10 @@ export default function LandingPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-slate-900 rounded flex items-center justify-center text-white font-bold text-sm">
-              BF
+            <div className="w-8 h-8 bg-slate-900 rounded flex items-center justify-center text-white font-bold text-xs tracking-wider">
+              FAI
             </div>
-            <span className="font-semibold text-slate-900 tracking-tight text-lg">Business Foresight</span>
+            <span className="font-semibold text-slate-900 tracking-tight text-lg">ForesightAI</span>
           </div>
           <nav className="flex items-center gap-6 text-sm text-slate-600">
             <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
@@ -39,7 +39,7 @@ export default function LandingPage() {
           See what could affect your business <br className="hidden sm:inline" /> before it becomes a problem.
         </h1>
         <p className="text-lg text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-          Business Foresight continuously monitors external macroeconomic & supply chain developments, compares them against historical scenario intelligence, and evaluates concrete risk & opportunity impacts personalized to your business data.
+          ForesightAI continuously monitors external macroeconomic & supply chain developments, compares them against historical scenario intelligence, and evaluates concrete risk & opportunity impacts personalized to your business data.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link href="/onboarding" className="btn-primary text-base px-6 py-3">
@@ -167,7 +167,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-8 px-6 mt-auto text-sm border-t border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div>© 2026 Business Foresight Platform. All rights reserved.</div>
+          <div>© 2026 ForesightAI Platform. All rights reserved.</div>
           <div className="flex gap-6">
             <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
             <Link href="/onboarding" className="hover:text-white transition-colors">Demo Onboarding</Link>
