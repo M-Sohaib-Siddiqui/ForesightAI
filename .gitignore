@@ -1,6 +1,8 @@
 # Environment variables & secrets (CRITICAL FOR SECURITY)
 .env
 .env.local
+.env.example
+.env.*.example
 .env.*.local
 *.env
 .venv/
