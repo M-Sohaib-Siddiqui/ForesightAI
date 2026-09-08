@@ -3,10 +3,15 @@ from pathlib import Path
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-load_dotenv()
+FILE_PATH = Path(__file__).resolve()
+BACKEND_DIR = FILE_PATH.parents[2]
+ROOT_DIR = FILE_PATH.parents[3]
+DATA_DIR = BACKEND_DIR / "app" / "data"
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "app" / "data"
+# Load .env from root directory (D:\dev\business-foresight\.env), backend directory, and CWD
+load_dotenv(ROOT_DIR / ".env")
+load_dotenv(BACKEND_DIR / ".env")
+load_dotenv()
 
 class BusinessProfile(BaseModel):
     id: str = "biz-levis-001"
