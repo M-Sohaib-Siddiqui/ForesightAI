@@ -99,6 +99,13 @@ CREATE INDEX IF NOT EXISTS historical_scenarios_embedding_idx
     ON public.historical_scenarios 
     USING hnsw (embedding vector_cosine_ops);
 
+-- Enable RLS and allow public read access for scenario matching
+ALTER TABLE public.historical_scenarios ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow read access for all users on historical scenarios"
+    ON public.historical_scenarios
+    FOR SELECT
+    USING (true);
+
 -- 6. Saved Daily Briefings
 CREATE TABLE IF NOT EXISTS public.briefings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
