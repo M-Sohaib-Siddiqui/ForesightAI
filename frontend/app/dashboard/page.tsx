@@ -572,7 +572,7 @@ export default function DashboardPage() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'advisor' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
               <MessageSquare className="w-4 h-4" />
-              AI Advisor + Voice
+              AI Advisor
             </button>
 
             <button
