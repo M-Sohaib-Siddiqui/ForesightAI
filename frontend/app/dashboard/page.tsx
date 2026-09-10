@@ -42,11 +42,30 @@ export default function DashboardPage() {
     voice_synthesizer: { provider: "ElevenLabs / Web Speech API", status: "browser_fallback", message: "Using Web Speech API voice synthesis.", voice_id: "21m00Tcm4TlvDq8ikWAM" }
   });
 
+  const fetchSystemStatus = async () => {
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const res = await fetch(`${apiBase}/api/system/status`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.overall_mode) {
+          setSystemMode(data.overall_mode);
+        }
+        if (data.api_diagnostics) {
+          setApiDiagnostics(data.api_diagnostics);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch system status from backend:", err);
+    }
+  };
+
   useEffect(() => {
     const email = localStorage.getItem('bf_user_email');
     if (email) {
       setUserEmail(email);
     }
+    fetchSystemStatus();
   }, []);
 
   const handleLogout = () => {
@@ -248,7 +267,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-4">
           {/* Data Source Mode Badge (Live API vs Demo Mode) */}
           <button
-            onClick={() => setShowDiagnosticsModal(true)}
+            onClick={() => { fetchSystemStatus(); setShowDiagnosticsModal(true); }}
             className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-colors ${
               systemMode === 'LIVE API MODE'
                 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
@@ -260,7 +279,7 @@ export default function DashboardPage() {
           </button>
 
           <button
-            onClick={() => setShowDiagnosticsModal(true)}
+            onClick={() => { fetchSystemStatus(); setShowDiagnosticsModal(true); }}
             className="hidden md:flex items-center gap-1 text-xs text-slate-300 hover:text-white border border-slate-700 px-2.5 py-1 rounded transition-colors"
           >
             <Key className="w-3.5 h-3.5" />
