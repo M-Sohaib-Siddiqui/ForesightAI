@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
         <link rel="icon" href="/logo-icon.png" type="image/png" />
         <link rel="shortcut icon" href="/logo-icon.png" type="image/png" />

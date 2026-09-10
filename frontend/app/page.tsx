@@ -192,6 +192,45 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 4. About Section (Scroll Target for #about) */}
+      <section id="about" className="py-20 px-8 max-w-7xl mx-auto w-full border-t border-slate-200/80">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-[#2563EB]">
+            <ShieldCheck className="w-4 h-4 text-blue-600" /> About ForesightAI
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+            Building trust through data accuracy, transparency, and historical grounding.
+          </h2>
+
+          <div className="space-y-6 text-slate-600 text-base leading-relaxed text-left bg-white p-8 md:p-10 rounded-3xl border border-slate-200/80 shadow-sm">
+            <p>
+              <strong className="text-slate-900 font-semibold">ForesightAI</strong> is an enterprise-grade decision intelligence platform engineered to protect organizations from supply chain vulnerabilities, commodity inflation, and global market volatility. By continuously ingesting verified real-time macro signals—from international freight indices and agricultural trade forecasts to competitor pricing feeds—ForesightAI translates overwhelming external data into concise, personalized operational guidance tailored specifically to your business model.
+            </p>
+
+            <p>
+              Built on a foundation of mathematical rigor and strict fact-grounding, our AI models contextualize current disruptions against historical crisis databases and your company's actual internal inventory, sales, and financial records. Backed by verifiable calculation audits, live evidence citations, and enterprise-level security protocols, ForesightAI empowers executive leadership to make proactive decisions with absolute confidence—turning unpredictable global events into sustainable strategic advantages.
+            </p>
+
+            {/* Credibility & Trust Highlights */}
+            <div className="pt-6 border-t border-slate-100 grid sm:grid-cols-3 gap-4 text-xs font-semibold text-slate-800">
+              <div className="flex items-center gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>100% Fact-Grounded Evidence</span>
+              </div>
+              <div className="flex items-center gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>Transparent Calculation Audits</span>
+              </div>
+              <div className="flex items-center gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
+                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>Enterprise Privacy & Security</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer (Matching Mockup Left Bottom Footer) */}
       <footer className="bg-white border-t border-slate-200 py-8 px-8 text-xs text-slate-500 mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
