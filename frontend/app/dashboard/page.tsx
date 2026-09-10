@@ -900,12 +900,9 @@ export default function DashboardPage() {
               <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-6 text-sm font-semibold">
-                    <button className="text-[#2563EB] border-b-2 border-[#2563EB] pb-3">
+                    <h3 className="font-bold text-slate-900 text-sm">
                       Ask Your AI Advisor
-                    </button>
-                    <button className="text-slate-400 hover:text-slate-600 pb-3">
-                      Voice Assistant
-                    </button>
+                    </h3>
                   </div>
                   {isSpeaking && (
                     <button
