@@ -45,7 +45,7 @@ class Settings:
     
     # Voice API Settings
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
-    ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+    ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "P8NfsqD6Mj2lTFzuAccu")
     
     # Pre-configured default test profile
     LEVIS_DEFAULT_PROFILE: BusinessProfile = BusinessProfile()

@@ -43,7 +43,7 @@ export default function DashboardPage() {
   const [apiDiagnostics, setApiDiagnostics] = useState<any>({
     llm_engine: { provider: "Google Gemini 1.5 Pro / OpenAI", status: "unconfigured", message: "No API key detected. Running local briefing engine.", has_key: false },
     database: { provider: "Supabase Cloud PostgreSQL", status: "active_live", message: "Connected to Supabase Cloud Database.", has_url: true },
-    voice_synthesizer: { provider: "ElevenLabs / Web Speech API", status: "browser_fallback", message: "Using Web Speech API voice synthesis.", voice_id: "21m00Tcm4TlvDq8ikWAM" }
+    voice_synthesizer: { provider: "ElevenLabs / Web Speech API", status: "browser_fallback", message: "Using Web Speech API voice synthesis.", voice_id: "P8NfsqD6Mj2lTFzuAccu" }
   });
 
   const fetchSystemStatus = async () => {
@@ -272,7 +272,7 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: cleanText,
-          voice_id: apiDiagnostics?.voice_synthesizer?.voice_id || '21m00Tcm4TlvDq8ikWAM'
+          voice_id: apiDiagnostics?.voice_synthesizer?.voice_id || 'P8NfsqD6Mj2lTFzuAccu'
         })
       });
 

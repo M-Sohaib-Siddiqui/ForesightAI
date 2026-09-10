@@ -266,7 +266,8 @@ def synthesize_voice(payload: Dict[str, Any] = Body(...)):
     Converts text response to audio/mpeg speech stream using ElevenLabs API key.
     """
     text = payload.get("text", "").strip()
-    voice_id = payload.get("voice_id", settings.ELEVENLABS_VOICE_ID or "21m00Tcm4TlvDq8ikWAM")
+    env_voice_id = settings.ELEVENLABS_VOICE_ID or os.getenv("ELEVENLABS_VOICE_ID")
+    voice_id = env_voice_id if env_voice_id else payload.get("voice_id", "P8NfsqD6Mj2lTFzuAccu")
     api_key = settings.ELEVENLABS_API_KEY or os.getenv("ELEVENLABS_API_KEY")
 
     if not text:
