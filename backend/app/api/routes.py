@@ -49,6 +49,8 @@ def system_status():
     elevenlabs_key = settings.ELEVENLABS_API_KEY
     elevenlabs_voice_id = settings.ELEVENLABS_VOICE_ID
 
+    serpapi_key = settings.SERPAPI_API_KEY
+
     # 1. Gemini / OpenAI LLM Key Verification
     llm_status = "unconfigured"
     llm_message = "No LLM API key detected in .env. Running on local briefing engine."
@@ -73,7 +75,11 @@ def system_status():
         voice_status = "active_live"
         voice_message = f"Connected to ElevenLabs Voice API (Voice ID: {elevenlabs_voice_id})."
 
-    overall_mode = "LIVE API MODE" if (llm_status == "active_live" or supabase_status == "active_live") else "SYNTHETIC DEMO MODE"
+    # 4. News & Search Extraction Verification
+    news_status = "active_live" if (serpapi_key and len(serpapi_key) > 10) else "local_fallback"
+    news_message = "Connected to SerpApi Google News Real-time Feed API." if news_status == "active_live" else "Using grounded domain intelligence fallback feeds."
+
+    overall_mode = "LIVE API MODE" if (llm_status == "active_live" or supabase_status == "active_live" or voice_status == "active_live") else "SYNTHETIC DEMO MODE"
 
     return {
         "overall_mode": overall_mode,
@@ -81,6 +87,7 @@ def system_status():
             "llm_engine": {"provider": "Google Gemini / OpenAI", "status": llm_status, "message": llm_message, "has_key": bool(gemini_key or openai_key)},
             "database": {"provider": "Supabase PostgreSQL + pgvector", "status": supabase_status, "message": supabase_message, "has_url": bool(supabase_url)},
             "voice_synthesizer": {"provider": "ElevenLabs / Web Speech API", "status": voice_status, "message": voice_message, "voice_id": elevenlabs_voice_id},
+            "news_extraction": {"provider": "SerpApi Google News Feed", "status": news_status, "message": news_message, "has_key": bool(serpapi_key)}
         },
         "version": settings.VERSION,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")

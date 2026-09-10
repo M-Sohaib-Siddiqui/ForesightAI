@@ -37,11 +37,12 @@ class Settings:
     PORT: int = int(os.getenv("PORT", 8000))
     HOST: str = os.getenv("HOST", "0.0.0.0")
     
-    # API Keys
+    # API Keys & Data Services
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    SERPAPI_API_KEY: str = os.getenv("SERPAPI_API_KEY", "")
     
     # Voice API Settings
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
