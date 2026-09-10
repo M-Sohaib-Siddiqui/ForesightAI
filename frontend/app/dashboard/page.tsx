@@ -816,14 +816,7 @@ export default function DashboardPage() {
                             className="transition-all duration-1000 ease-out"
                           />
 
-                          {/* Glowing Indicator Tip at 78% Position */}
-                          <circle
-                            cx="157.8"
-                            cy="52.2"
-                            r="5"
-                            fill="#F59E0B"
-                            className="animate-ping opacity-75"
-                          />
+                          {/* Indicator Tip at 78% Position */}
                           <circle
                             cx="157.8"
                             cy="52.2"
@@ -843,7 +836,7 @@ export default function DashboardPage() {
 
                       {/* Moderate Risk Badge */}
                       <div className="mt-1 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
                         <span>Moderate Risk Level</span>
                       </div>
                     </div>
