@@ -391,7 +391,7 @@ export default function DashboardPage() {
       {/* Top Stable App Bar with User Account & API Key Diagnostics */}
       <header className="bg-slate-900 text-white h-16 border-b border-slate-800 flex items-center justify-between px-6 shrink-0 sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <img src="/logo-icon.png" alt="ForesightAI Logo" className="w-8 h-8 object-contain rounded bg-white p-0.5" />
+          <img src="/logo-icon.png" alt="ForesightAI Logo" className="w-8 h-8 object-contain" />
           <div>
             <div className="font-semibold text-sm leading-none flex items-center gap-2">
               ForesightAI
