@@ -22,8 +22,8 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-slate-300">
             <a href="#home" className="text-white font-medium hover:text-white transition-colors">Home</a>
             <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#about" className="hover:text-white transition-colors">About</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="#about" className="hover:text-white transition-colors">About</a>
           </nav>
 
           <div className="flex items-center gap-5 text-sm">
@@ -507,8 +507,8 @@ export default function LandingPage() {
           <div className="flex items-center gap-6 text-slate-600">
             <a href="#home" className="hover:text-slate-900">Home</a>
             <a href="#features" className="hover:text-slate-900">Features</a>
-            <a href="#about" className="hover:text-slate-900">About</a>
             <a href="#pricing" className="hover:text-slate-900">Pricing</a>
+            <a href="#about" className="hover:text-slate-900">About</a>
           </div>
         </div>
       </footer>
