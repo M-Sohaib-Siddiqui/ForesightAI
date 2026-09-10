@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -94,6 +94,7 @@ export default function DashboardPage() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isAdvisorLoading, setIsAdvisorLoading] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Competitor Intelligence State (Feature 5)
   const [manualCompName, setManualCompName] = useState('');
@@ -162,6 +163,11 @@ export default function DashboardPage() {
 
   // Stop Text-to-Speech Audio Playback
   const handleStopSpeaking = () => {
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current.currentTime = 0;
+      activeAudioRef.current = null;
+    }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
@@ -223,12 +229,11 @@ export default function DashboardPage() {
     }
   };
 
-  const handleTextToSpeech = (text: string) => {
+  const fallbackBrowserTTS = (text: string) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text.replace(/[*_#]/g, ''));
+      const utterance = new SpeechSynthesisUtterance(text);
 
-      // Explicit Female Voice selection from browser's available voices
       const voices = window.speechSynthesis.getVoices();
       const femaleVoice = voices.find(v =>
         (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') ||
@@ -246,7 +251,56 @@ export default function DashboardPage() {
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
       window.speechSynthesis.speak(utterance);
+    } else {
+      setIsSpeaking(false);
     }
+  };
+
+  const handleTextToSpeech = async (text: string) => {
+    handleStopSpeaking();
+
+    const cleanText = text.replace(/[*_#]/g, '').trim();
+    if (!cleanText) return;
+
+    setIsSpeaking(true);
+
+    // 1. Try ElevenLabs API endpoint on backend first
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const res = await fetch(`${apiBase}/api/voice/synthesize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: cleanText,
+          voice_id: apiDiagnostics?.voice_synthesizer?.voice_id || '21m00Tcm4TlvDq8ikWAM'
+        })
+      });
+
+      if (res.ok) {
+        const audioBlob = await res.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        activeAudioRef.current = audio;
+
+        audio.onended = () => {
+          setIsSpeaking(false);
+          activeAudioRef.current = null;
+        };
+        audio.onerror = () => {
+          console.warn("ElevenLabs audio playback error, falling back to browser speech synthesis.");
+          activeAudioRef.current = null;
+          fallbackBrowserTTS(cleanText);
+        };
+
+        await audio.play();
+        return;
+      }
+    } catch (err) {
+      console.warn("ElevenLabs backend API error, using browser speech synthesis fallback:", err);
+    }
+
+    // 2. Fallback to Browser Speech Synthesis (Female Voice)
+    fallbackBrowserTTS(cleanText);
   };
 
   const handleSendQuestion = async (questionText: string) => {

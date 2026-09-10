@@ -1,4 +1,6 @@
+import os
 from fastapi import APIRouter, UploadFile, File, HTTPException, Body, Header
+from fastapi.responses import Response
 from typing import Dict, Any, Optional
 import hashlib
 import time
@@ -256,6 +258,42 @@ def advisor_chat(payload: Dict[str, Any] = Body(...)):
     )
     ans["data_source_mode"] = status["overall_mode"]
     return ans
+
+@router.post("/voice/synthesize")
+def synthesize_voice(payload: Dict[str, Any] = Body(...)):
+    """
+    ElevenLabs Voice Synthesizer API endpoint.
+    Converts text response to audio/mpeg speech stream using ElevenLabs API key.
+    """
+    text = payload.get("text", "").strip()
+    voice_id = payload.get("voice_id", settings.ELEVENLABS_VOICE_ID or "21m00Tcm4TlvDq8ikWAM")
+    api_key = settings.ELEVENLABS_API_KEY or os.getenv("ELEVENLABS_API_KEY")
+
+    if not text:
+        raise HTTPException(status_code=400, detail="Text is required.")
+    if not api_key:
+        raise HTTPException(status_code=400, detail="ELEVENLABS_API_KEY is not configured in .env.")
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": api_key
+    }
+    body = {
+        "text": text[:1000],
+        "model_id": "eleven_monolingual_v1",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75
+        }
+    }
+
+    resp = requests.post(url, headers=headers, json=body, timeout=20)
+    if resp.status_code == 200:
+        return Response(content=resp.content, media_type="audio/mpeg")
+    
+    raise HTTPException(status_code=resp.status_code, detail=f"ElevenLabs API Error: {resp.text}")
 
 @router.get("/competitors/analysis")
 def get_competitor_analysis():
