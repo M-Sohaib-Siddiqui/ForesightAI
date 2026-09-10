@@ -9,9 +9,7 @@ export default function LandingPage() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-slate-900 rounded flex items-center justify-center text-white font-bold text-xs tracking-wider">
-              FAI
-            </div>
+            <img src="/logo-icon.png" alt="ForesightAI Logo" className="w-8 h-8 object-contain rounded" />
             <span className="font-semibold text-slate-900 tracking-tight text-lg">ForesightAI</span>
           </div>
           <nav className="flex items-center gap-6 text-sm text-slate-600">

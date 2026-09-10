@@ -33,9 +33,7 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center font-bold text-base mx-auto mb-4">
-          BF
-        </div>
+        <img src="/logo-icon.png" alt="ForesightAI Logo" className="w-12 h-12 object-contain rounded-lg mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create your Business Account</h2>
         <p className="text-sm text-slate-600 mt-1">Start monitoring risks and opportunities personalized to your company.</p>
       </div>
