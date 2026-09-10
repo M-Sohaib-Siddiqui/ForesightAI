@@ -197,9 +197,36 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSendQuestion = (questionText: string) => {
+  const handleSendQuestion = async (questionText: string) => {
     const q = questionText || chatQuestion;
     if (!q.trim()) return;
+
+    setChatQuestion('');
+
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    try {
+      const res = await fetch(`${apiBase}/api/advisor/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const newMsg = {
+          role: 'advisor',
+          question: q,
+          answer: data.answer || "No answer returned.",
+          retrieved_facts: data.retrieved_facts || [],
+          model_estimates: data.model_estimates || [],
+          recommended_actions: data.recommended_actions || []
+        };
+        setChatHistory((prev) => [...prev, newMsg]);
+        handleTextToSpeech(data.voice_synthesis_text || data.answer);
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend advisor API call error, using local fallback:", err);
+    }
 
     let responseAnswer = "";
     let facts = [];
@@ -221,11 +248,6 @@ export default function DashboardPage() {
         "Extend supplier lead-time reorder buffers from 24 days to 38 days.",
         "Pre-allocate air-freight for top 5% highest margin outerwear SKUs."
       ];
-    } else if (lowerQ.includes('competitor') || lowerQ.includes('price') || lowerQ.includes('wrangler') || lowerQ.includes('zara')) {
-      responseAnswer = "Looking at your competitor intelligence matrix:\n- American Eagle is currently running a 'Buy 1 Get 1 50% Off' denim promo.\n- Zara is discounting seasonal denim by 30% to clear spring stock.\n- Recommendation: Levi's retains a +22% pricing power premium in core 501 jeans. Avoid panic discounting on core denim lines, but consider tactical promotions on non-core graphic tees.";
-      facts = ["Wrangler MSRP average: $68.00", "Zara MSRP average: $59.90", "Levi's 501 Jeans MSRP average: $79.50"];
-      estimates = ["Levi's pricing power premium: +22% above market average."];
-      actions = ["Maintain core 501 MSRP.", "Run dynamic bundle discounts on basic tees only."];
     } else {
       responseAnswer = "Here is your immediate operational action plan for Levi's:\n1. Inventory Buffers: Extend supplier reorder lead times from 24 days to 38 days for Vietnam and Bangladesh vendors.\n2. Contract Hedging: Lock in 6-month ocean container rates with logistics carriers to prevent spot surcharges.\n3. Air-Freight Allocation: Reserve air cargo for high-margin fall outerwear launches to avoid missing seasonal shelf dates.";
       facts = ["Current inventory reorder buffer is set to 24 days.", "Primary nearshore backup country available: Mexico / Turkey."];
@@ -243,7 +265,6 @@ export default function DashboardPage() {
     };
 
     setChatHistory((prev) => [...prev, newMsg]);
-    setChatQuestion('');
     handleTextToSpeech(responseAnswer);
   };
 
