@@ -778,14 +778,73 @@ export default function DashboardPage() {
                     <h3 className="font-bold text-slate-900 text-base mb-1">Overall Risk Level</h3>
                     <p className="text-slate-500 text-xs">Based on current global events & business profile.</p>
 
-                    {/* Semi-Circular Gauge Meter */}
-                    <div className="my-6 flex flex-col items-center justify-center relative">
-                      <div className="w-44 h-24 overflow-hidden relative flex items-end justify-center">
-                        <div className="w-44 h-44 rounded-full border-[14px] border-slate-100 border-t-amber-500 border-r-amber-500 transform -rotate-45" />
+                    {/* Semi-Circular SVG Gauge Meter */}
+                    <div className="my-3 flex flex-col items-center justify-center relative">
+                      <div className="relative w-56 h-32 flex items-center justify-center">
+                        <svg className="w-full h-full" viewBox="0 0 200 120">
+                          <defs>
+                            <linearGradient id="riskGaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#10B981" />
+                              <stop offset="50%" stopColor="#F59E0B" />
+                              <stop offset="100%" stopColor="#EF4444" />
+                            </linearGradient>
+                            <filter id="gaugeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                              <feGaussianBlur stdDeviation="3" result="blur" />
+                              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                          </defs>
+
+                          {/* Background Track Arc */}
+                          <path
+                            d="M 25 100 A 75 75 0 0 1 175 100"
+                            fill="none"
+                            stroke="#E2E8F0"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                          />
+
+                          {/* Active Progress Arc (78% of 235.6 total arc = strokeDashoffset 51.8) */}
+                          <path
+                            d="M 25 100 A 75 75 0 0 1 175 100"
+                            fill="none"
+                            stroke="url(#riskGaugeGradient)"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                            strokeDasharray="235.6"
+                            strokeDashoffset="51.8"
+                            filter="url(#gaugeGlow)"
+                            className="transition-all duration-1000 ease-out"
+                          />
+
+                          {/* Glowing Indicator Tip at 78% Position */}
+                          <circle
+                            cx="157.8"
+                            cy="52.2"
+                            r="5"
+                            fill="#F59E0B"
+                            className="animate-ping opacity-75"
+                          />
+                          <circle
+                            cx="157.8"
+                            cy="52.2"
+                            r="6"
+                            fill="#FFFFFF"
+                            stroke="#F59E0B"
+                            strokeWidth="3"
+                          />
+                        </svg>
+
+                        {/* Center Score Overlay */}
+                        <div className="absolute top-[48px] text-center flex flex-col items-center">
+                          <span className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none">78</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">out of 100</span>
+                        </div>
                       </div>
-                      <div className="text-center mt-2">
-                        <div className="text-2xl font-extrabold text-slate-900">Moderate</div>
-                        <div className="text-xs text-slate-400 mt-0.5">Risk Score: 78 / 100</div>
+
+                      {/* Moderate Risk Badge */}
+                      <div className="mt-1 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        <span>Moderate Risk Level</span>
                       </div>
                     </div>
                   </div>
