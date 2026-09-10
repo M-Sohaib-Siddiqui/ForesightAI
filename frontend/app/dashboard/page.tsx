@@ -594,9 +594,14 @@ export default function DashboardPage() {
             </button>
           </nav>
 
-          <div className="p-4 border-t border-slate-200 text-xs text-slate-500">
-            <div className="font-semibold text-slate-700 mb-1">Grounded AI Guarantee</div>
-            All claims grounded in retrieved historical scenarios & Levi's synthetic CSV datasets.
+          <div className="p-4 border-t border-slate-200 text-xs bg-amber-50/50">
+            <div className="font-semibold text-amber-900 mb-1 flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              AI Prediction Precaution
+            </div>
+            <p className="text-amber-800 text-[11px] leading-relaxed">
+              All insights, risk scores, and scenario forecasts are AI-generated predictions. AI models can make mistakes — please verify critical strategic & financial decisions with your executive management team.
+            </p>
           </div>
         </aside>
 
