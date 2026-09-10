@@ -211,22 +211,6 @@ export default function LandingPage() {
             <p>
               Built on a foundation of mathematical rigor and strict fact-grounding, our AI models contextualize current disruptions against historical crisis databases and your company's actual internal inventory, sales, and financial records. Backed by verifiable calculation audits, live evidence citations, and enterprise-level security protocols, ForesightAI empowers executive leadership to make proactive decisions with absolute confidence—turning unpredictable global events into sustainable strategic advantages.
             </p>
-
-            {/* Credibility & Trust Highlights */}
-            <div className="pt-6 border-t border-slate-100 grid sm:grid-cols-3 gap-4 text-xs font-semibold text-slate-800">
-              <div className="flex items-center gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>100% Fact-Grounded Evidence</span>
-              </div>
-              <div className="flex items-center gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Transparent Calculation Audits</span>
-              </div>
-              <div className="flex items-center gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200/60">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Enterprise Privacy & Security</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
