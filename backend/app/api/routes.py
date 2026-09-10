@@ -283,10 +283,12 @@ def synthesize_voice(payload: Dict[str, Any] = Body(...)):
     }
     body = {
         "text": text[:1000],
-        "model_id": "eleven_monolingual_v1",
+        "model_id": "eleven_multilingual_v2",
         "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75
+            "stability": 0.35,          # Lower stability allows rich emotional inflection & natural voice dynamics
+            "similarity_boost": 0.85,   # High clarity & authentic tone match
+            "style": 0.35,              # Enhanced style expressiveness and emotion
+            "use_speaker_boost": True
         }
     }
 
