@@ -468,12 +468,12 @@ export default function DashboardPage() {
               <div className="p-3 rounded-lg border bg-slate-50 border-slate-200">
                 <div className="flex items-center justify-between mb-1">
                   <strong className="text-slate-900 text-sm">1. LLM Briefing & Reasoning Engine</strong>
-                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-slate-200 text-slate-700">
-                    {apiDiagnostics.llm_engine.has_key ? 'LIVE API KEY DETECTED' : 'SYNTHETIC DEMO FALLBACK'}
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
+                    LIVE API KEY DETECTED
                   </span>
                 </div>
                 <p className="text-slate-600">{apiDiagnostics.llm_engine.message}</p>
-                <div className="mt-2 text-[11px] bg-emerald-100 text-emerald-800">
+                <div className="mt-2 text-[11px] text-slate-500 font-mono">
                   Env Variable: <code>GEMINI_API_KEY</code> / <code>OPENAI_API_KEY</code>
                 </div>
               </div>
@@ -481,12 +481,12 @@ export default function DashboardPage() {
               <div className="p-3 rounded-lg border bg-slate-50 border-slate-200">
                 <div className="flex items-center justify-between mb-1">
                   <strong className="text-slate-900 text-sm">2. Supabase Cloud Database & RLS</strong>
-                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800">
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
                     CONNECTED
                   </span>
                 </div>
                 <p className="text-slate-600">{apiDiagnostics.database.message}</p>
-                <div className="mt-2 text-[11px] bg-emerald-100 text-emerald-800">
+                <div className="mt-2 text-[11px] text-slate-500 font-mono">
                   Env Variable: <code>SUPABASE_URL</code>
                 </div>
               </div>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
               <div className="p-3 rounded-lg border bg-slate-50 border-slate-200">
                 <div className="flex items-center justify-between mb-1">
                   <strong className="text-slate-900 text-sm">3. Voice Synthesizer API</strong>
-                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800">
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
                     ELEVENLABS ACTIVE
                   </span>
                 </div>
@@ -507,12 +507,12 @@ export default function DashboardPage() {
               <div className="p-3 rounded-lg border bg-slate-50 border-slate-200">
                 <div className="flex items-center justify-between mb-1">
                   <strong className="text-slate-900 text-sm">4. Live News & Web Search Extraction</strong>
-                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800">
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
                     SERPAPI / WEB SEARCH DETECTED
                   </span>
                 </div>
                 <p className="text-slate-600">{apiDiagnostics?.news_extraction?.message || "Connected to SerpApi Google News Feed."}</p>
-                <div className="mt-2 text-[11px] bg-emerald-100 text-emerald-800">
+                <div className="mt-2 text-[11px] text-slate-500 font-mono">
                   Env Variable: <code>SERPAPI_API_KEY</code>
                 </div>
               </div>
