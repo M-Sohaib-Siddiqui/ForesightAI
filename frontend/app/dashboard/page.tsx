@@ -774,6 +774,31 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {/* Explainable Calculation Audit Breakdown */}
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-xs space-y-2">
+                <div className="font-semibold text-slate-900 flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 text-slate-700" />
+                  Mathematical Calculation Audit Breakdown:
+                </div>
+                <div className="grid md:grid-cols-3 gap-4 text-slate-600">
+                  <div className="p-2.5 bg-white rounded border border-slate-200">
+                    <strong className="text-slate-900 block mb-1">1. Revenue at Risk Formula:</strong>
+                    <code className="text-[11px] bg-slate-100 p-1 rounded block text-slate-800">Q3 Revenue ($15.6M) × 8% Exposure = $1,250,000.00</code>
+                    <p className="text-[11px] text-slate-500 mt-1">Calculates 8% stockout exposure against seasonal pipeline.</p>
+                  </div>
+                  <div className="p-2.5 bg-white rounded border border-slate-200">
+                    <strong className="text-slate-900 block mb-1">2. Supply Chain Exposure Score:</strong>
+                    <code className="text-[11px] bg-slate-100 p-1 rounded block text-slate-800">60 (Base Delay) + 12 (85% Import) + 6 (Low Stock) = 78/100</code>
+                    <p className="text-[11px] text-slate-500 mt-1">Combines import reliance with low safety stock SKUs.</p>
+                  </div>
+                  <div className="p-2.5 bg-white rounded border border-slate-200">
+                    <strong className="text-slate-900 block mb-1">3. Margin Compression Formula:</strong>
+                    <code className="text-[11px] bg-slate-100 p-1 rounded block text-slate-800">180 bps (Cotton +14%) + 140 bps (Freight) = -320 bps</code>
+                    <p className="text-[11px] text-slate-500 mt-1">Sums raw material inflation & ocean container surcharges.</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Opportunities Matrix */}
               <div className="enterprise-card border-l-4 border-l-emerald-600">
                 <h3 className="font-bold text-slate-900 text-lg mb-2">Detected Strategic Opportunities</h3>
