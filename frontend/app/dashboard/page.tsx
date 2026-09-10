@@ -594,13 +594,10 @@ export default function DashboardPage() {
             </button>
           </nav>
 
-          <div className="p-4 border-t border-slate-200 text-xs bg-amber-50/50">
-            <div className="font-semibold text-amber-900 mb-1 flex items-center gap-1.5">
+          <div className="p-3 border-t border-slate-200 text-xs bg-amber-50/50">
+            <p className="text-amber-900 text-[11px] font-medium flex items-center gap-1.5 leading-snug">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-              AI Prediction Precaution
-            </div>
-            <p className="text-amber-800 text-[11px] leading-relaxed">
-              All insights, risk scores, and scenario forecasts are AI-generated predictions. AI models can make mistakes — please verify critical strategic & financial decisions with your executive management team.
+              <span><strong>Precaution:</strong> Predictions are AI-generated and can make mistakes — verify before deciding.</span>
             </p>
           </div>
         </aside>
