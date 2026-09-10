@@ -27,7 +27,9 @@ import {
   X,
   Key,
   Sparkles,
-  Loader2
+  Loader2,
+  Square,
+  VolumeX
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -91,6 +93,7 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isAdvisorLoading, setIsAdvisorLoading] = useState(false);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   // Competitor Intelligence State (Feature 5)
   const [manualCompName, setManualCompName] = useState('');
@@ -157,6 +160,38 @@ export default function DashboardPage() {
     setManualCompUrl('');
   };
 
+  // Stop Text-to-Speech Audio Playback
+  const handleStopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  };
+
+  // Stop AI Response Generation
+  const handleStopGeneration = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    setIsAdvisorLoading(false);
+    setChatHistory((prev) =>
+      prev.map((item) =>
+        item.isLoading
+          ? {
+              role: 'advisor',
+              question: item.question,
+              answer: "Response generation was cancelled by user.",
+              isLoading: false,
+              retrieved_facts: ["Generation cancelled by user action."],
+              model_estimates: ["No model output recorded."],
+              recommended_actions: ["Ask a new question or retry."]
+            }
+          : item
+      )
+    );
+  };
+
   // Web Speech API Voice Handlers
   const handleMicToggle = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -192,10 +227,24 @@ export default function DashboardPage() {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text.replace(/[*_#]/g, ''));
+
+      // Explicit Female Voice selection from browser's available voices
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(v =>
+        (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') ||
+         v.name.includes('Victoria') || v.name.includes('Karen') || v.name.includes('Jenny') ||
+         v.name.includes('Google US English') || v.name.includes('Natural')) && v.lang.startsWith('en')
+      ) || voices.find(v => v.lang.startsWith('en'));
+
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
+
       utterance.rate = 0.95;
-      utterance.pitch = 1.0;
+      utterance.pitch = 1.1; // Slightly higher pitch for clear female tone
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -206,6 +255,9 @@ export default function DashboardPage() {
 
     setChatQuestion('');
     setIsAdvisorLoading(true);
+
+    const controller = new AbortController();
+    setAbortController(controller);
 
     // 1. Immediately render user question and thinking state in chat thread
     const tempMsg = {
@@ -228,7 +280,8 @@ export default function DashboardPage() {
       const res = await fetch(`${apiBase}/api/advisor/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q })
+        body: JSON.stringify({ question: q }),
+        signal: controller.signal
       });
       if (res.ok) {
         const data = await res.json();
@@ -248,10 +301,15 @@ export default function DashboardPage() {
           )
         );
         setIsAdvisorLoading(false);
-        handleTextToSpeech(data.voice_synthesis_text || data.answer);
+        setAbortController(null);
+        // Note: Speech is NOT triggered automatically per user preference. User can click 'Speak Response'.
         return;
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.log("User cancelled response generation.");
+        return;
+      }
       console.warn("Backend advisor API call error:", err);
     }
 
@@ -271,6 +329,7 @@ export default function DashboardPage() {
       )
     );
     setIsAdvisorLoading(false);
+    setAbortController(null);
   };
 
   return (
@@ -669,37 +728,57 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl font-bold text-slate-900">AI Business Advisor with Voice</h1>
-                  <p className="text-slate-600 text-sm mt-1">Professional chat interface with microphone input and spoken responses.</p>
+                  <p className="text-slate-600 text-sm mt-1">Professional chat interface with voice controls, dynamic Gemini reasoning, and female voice readouts.</p>
                 </div>
-                {isSpeaking && (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full animate-pulse">
-                    <Volume2 className="w-4 h-4" />
-                    Advisor Speaking...
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  {isSpeaking && (
+                    <button
+                      type="button"
+                      onClick={handleStopSpeaking}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors animate-pulse"
+                    >
+                      <Square className="w-3.5 h-3.5 fill-red-600 text-red-600" />
+                      Stop Speaking
+                    </button>
+                  )}
+                  {isAdvisorLoading && (
+                    <button
+                      type="button"
+                      onClick={handleStopGeneration}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors"
+                    >
+                      <Square className="w-3.5 h-3.5 fill-red-600 text-red-600" />
+                      Stop Generation
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Quick Prompt Buttons */}
               <div className="flex flex-wrap gap-2 text-xs">
                 <button
+                  type="button"
                   onClick={() => handleSendQuestion("How could today's situation affect my business?")}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
                 >
                   "How could today's situation affect my business?"
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleSendQuestion("What should I prepare for?")}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
                 >
                   "What should I prepare for?"
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleSendQuestion("What are my competitors doing with pricing?")}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
                 >
                   "What are my competitors doing with pricing?"
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleSendQuestion("What should I do first?")}
                   className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-md font-medium transition-colors"
                 >
@@ -738,10 +817,24 @@ export default function DashboardPage() {
                         {!item.isLoading && (
                           <button
                             type="button"
-                            onClick={() => handleTextToSpeech(item.answer)}
-                            className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 border border-slate-200 px-2 py-1 rounded"
+                            onClick={() => isSpeaking ? handleStopSpeaking() : handleTextToSpeech(item.answer)}
+                            className={`text-xs flex items-center gap-1 border px-2.5 py-1 rounded transition-colors ${
+                              isSpeaking
+                                ? 'bg-red-50 border-red-300 text-red-700 font-medium hover:bg-red-100'
+                                : 'border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
+                            }`}
                           >
-                            <Volume2 className="w-3.5 h-3.5" /> Speak Response
+                            {isSpeaking ? (
+                              <>
+                                <Square className="w-3.5 h-3.5 fill-red-600 text-red-600" />
+                                Stop Speaking
+                              </>
+                            ) : (
+                              <>
+                                <Volume2 className="w-3.5 h-3.5 text-slate-600" />
+                                Speak Response
+                              </>
+                            )}
                           </button>
                         )}
                       </div>
@@ -817,24 +910,25 @@ export default function DashboardPage() {
                     className="flex-1 text-sm bg-transparent border-none focus:outline-none text-slate-900 px-2 disabled:opacity-60"
                   />
 
-                  <button
-                    type="button"
-                    disabled={isAdvisorLoading}
-                    onClick={() => handleSendQuestion('')}
-                    className="btn-primary px-4 py-2 text-xs flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    {isAdvisorLoading ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-3.5 h-3.5" />
-                        Ask
-                      </>
-                    )}
-                  </button>
+                  {isAdvisorLoading ? (
+                    <button
+                      type="button"
+                      onClick={handleStopGeneration}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-xs rounded-md font-medium flex items-center gap-1.5 transition-colors"
+                    >
+                      <Square className="w-3.5 h-3.5 fill-white text-white" />
+                      Stop Generation
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSendQuestion('')}
+                      className="btn-primary px-4 py-2 text-xs flex items-center gap-1.5"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      Ask
+                    </button>
+                  )}
                 </div>
               </div>
 
