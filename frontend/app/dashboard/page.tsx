@@ -288,6 +288,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-4">
           {/* Data Source Mode Badge (Live API vs Demo Mode) */}
           <button
+            type="button"
             onClick={() => { fetchSystemStatus(); setShowDiagnosticsModal(true); }}
             className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border transition-colors ${
               systemMode === 'LIVE API MODE'
@@ -300,6 +301,7 @@ export default function DashboardPage() {
           </button>
 
           <button
+            type="button"
             onClick={() => { fetchSystemStatus(); setShowDiagnosticsModal(true); }}
             className="hidden md:flex items-center gap-1 text-xs text-slate-300 hover:text-white border border-slate-700 px-2.5 py-1 rounded transition-colors"
           >
@@ -313,6 +315,7 @@ export default function DashboardPage() {
           </div>
 
           <button
+            type="button"
             onClick={handleLogout}
             className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded transition-colors"
             title="Sign Out of Session"
@@ -325,8 +328,14 @@ export default function DashboardPage() {
 
       {/* API Key Diagnostics Modal */}
       {showDiagnosticsModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full border border-slate-300 shadow-xl overflow-hidden text-slate-900">
+        <div 
+          onClick={() => setShowDiagnosticsModal(false)}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-xl max-w-lg w-full border border-slate-300 shadow-xl overflow-hidden text-slate-900 cursor-default"
+          >
             <div className="bg-slate-900 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2 font-semibold text-sm">
                 <Key className="w-4 h-4 text-amber-400" />
@@ -400,6 +409,7 @@ export default function DashboardPage() {
           </div>
           <nav className="p-3 space-y-1 flex-1">
             <button
+              type="button"
               onClick={() => setActiveTab('briefing')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'briefing' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
@@ -408,6 +418,7 @@ export default function DashboardPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab('scenarios')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'scenarios' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
@@ -416,6 +427,7 @@ export default function DashboardPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab('risk')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'risk' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
@@ -424,6 +436,7 @@ export default function DashboardPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab('advisor')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'advisor' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
@@ -432,6 +445,7 @@ export default function DashboardPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab('competitors')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'competitors' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
@@ -440,6 +454,7 @@ export default function DashboardPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab('files')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'files' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`}
             >
