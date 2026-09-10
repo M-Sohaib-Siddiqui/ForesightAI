@@ -31,17 +31,19 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6 font-sans">
+    <div className="min-h-screen bg-[#F4F6FA] flex flex-col justify-center py-12 px-6 font-sans text-slate-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <img src="/logo-icon.png" alt="ForesightAI Logo" className="w-12 h-12 object-contain rounded-lg mx-auto mb-4" />
+        <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4">
+          <img src="/logo-icon.png" alt="foresightAI" className="w-10 h-10 object-contain" />
+        </Link>
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create your Business Account</h2>
-        <p className="text-sm text-slate-600 mt-1">Start monitoring risks and opportunities personalized to your company.</p>
+        <p className="text-xs text-slate-500 mt-1">Start monitoring risks and opportunities personalized to your company.</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="enterprise-card bg-white p-8 border border-slate-200 rounded-xl">
+        <div className="bg-white p-8 border border-slate-200/80 rounded-2xl shadow-sm">
           {errorMsg && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded flex items-center gap-2">
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs p-3.5 rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               {errorMsg}
             </div>
@@ -49,45 +51,45 @@ export default function SignUpPage() {
 
           <form onSubmit={handleSignUp} className="space-y-5">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Company / Business Name</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Company / Business Name</label>
               <div className="relative">
-                <Building className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Building className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
                   required
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 pl-9 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  className="w-full text-xs border border-slate-200 rounded-xl p-3 pl-10 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#2563EB]"
                   placeholder="e.g. Levi's / Acme Apparel"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Work Email Address</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Work Email Address</label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 pl-9 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  className="w-full text-xs border border-slate-200 rounded-xl p-3 pl-10 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#2563EB]"
                   placeholder="name@company.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Create Password</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Create Password</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 pl-9 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  className="w-full text-xs border border-slate-200 rounded-xl p-3 pl-10 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#2563EB]"
                   placeholder="At least 8 characters"
                 />
               </div>
@@ -96,23 +98,23 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary justify-center py-2.5 text-sm"
+              className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition-all"
             >
               {loading ? "Creating Account..." : "Create Account & Start Onboarding"}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-slate-600">
+          <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-slate-900 hover:underline">
+            <Link href="/login" className="font-semibold text-blue-600 hover:underline">
               Sign In
             </Link>
           </div>
         </div>
 
-        <div className="mt-6 text-center text-xs text-slate-500 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
+        <div className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
           Multi-Tenant Data Privacy Guaranteed
         </div>
       </div>
