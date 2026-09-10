@@ -228,32 +228,10 @@ export default function DashboardPage() {
       console.warn("Backend advisor API call error, using local fallback:", err);
     }
 
-    let responseAnswer = "";
-    let facts = [];
-    let estimates = [];
-    let actions = [];
-
-    const lowerQ = q.toLowerCase();
-    if (lowerQ.includes('affect') || lowerQ.includes('today') || lowerQ.includes('situation')) {
-      responseAnswer = "Based on today's intelligence for Levi's, 3 key developments require attention. The primary threat is the Red Sea shipping route security disruption (Source: S&P Global Freight Index). Because 85% of your garment production relies on Asian suppliers in Vietnam, Bangladesh, and India, this will extend oceanic transit times by 10 to 14 days and increase freight costs by up to $1,200 per container. Additionally, raw cotton prices have surged 14%, putting medium-term pressure on COGS gross margins.";
-      facts = [
-        "Red Sea shipping rerouting adds 10-14 days lead time (Source: S&P Global Freight Index).",
-        "Raw cotton spot prices rose +14% over the last 30 days (Source: USDA WASDE)."
-      ];
-      estimates = [
-        "Estimated revenue at risk: $1,250,000.00.",
-        "Gross profit margin compression estimated at 280-420 basis points over 3-6 months."
-      ];
-      actions = [
-        "Extend supplier lead-time reorder buffers from 24 days to 38 days.",
-        "Pre-allocate air-freight for top 5% highest margin outerwear SKUs."
-      ];
-    } else {
-      responseAnswer = "Here is your immediate operational action plan for Levi's:\n1. Inventory Buffers: Extend supplier reorder lead times from 24 days to 38 days for Vietnam and Bangladesh vendors.\n2. Contract Hedging: Lock in 6-month ocean container rates with logistics carriers to prevent spot surcharges.\n3. Air-Freight Allocation: Reserve air cargo for high-margin fall outerwear launches to avoid missing seasonal shelf dates.";
-      facts = ["Current inventory reorder buffer is set to 24 days.", "Primary nearshore backup country available: Mexico / Turkey."];
-      estimates = ["Pivoting 25% of replenishment to nearshore suppliers safeguards ~$450,000 in Q3 revenue."];
-      actions = ["Update reorder parameters in inventory system today.", "Review raw cotton price exposure with yarn spinning mills."];
-    }
+    let responseAnswer = "Could not connect to ForesightAI backend API. Please make sure python main.py is running in backend directory.";
+    let facts = ["Backend Connection Status: Offline / Disconnected"];
+    let estimates = ["Ensure python main.py is running at http://localhost:8000"];
+    let actions = ["Run python main.py in backend folder and try asking your question again."];
 
     const newMsg = {
       role: 'advisor',
