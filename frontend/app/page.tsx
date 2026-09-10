@@ -192,7 +192,283 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. About Section (Scroll Target for #about) */}
+      {/* 4. Pricing Section (Scroll Target for #pricing) */}
+      <section id="pricing" className="py-20 px-8 max-w-7xl mx-auto w-full border-t border-slate-200/80">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <span className="text-xs font-bold text-[#2563EB] tracking-wider uppercase">Flexible Pricing</span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mt-2 mb-4">
+            Plans built for every stage of business growth
+          </h2>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Start with our basic free plan or upgrade to Pro to unlock real-time macro signals, voice intelligence, and advance enterprise features.
+          </p>
+        </div>
+
+        {/* 3 Pricing Option Cards */}
+        <div className="grid lg:grid-cols-3 gap-8 mb-16 items-stretch">
+          {/* Card 1: Basic Free */}
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Basic Starter</div>
+              <h3 className="text-2xl font-bold text-slate-900">Free</h3>
+              <div className="mt-4 mb-6">
+                <span className="text-4xl font-extrabold text-slate-900">$0</span>
+                <span className="text-slate-500 text-xs font-medium"> / forever</span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                Ideal for small businesses & store managers exploring AI-powered risk briefings and data file uploads.
+              </p>
+
+              <div className="space-y-3 text-xs text-slate-700 font-medium">
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Daily AI Business Briefing</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>CSV File Upload (Sales & Inventory)</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Standard Risk Index Meter</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Pre-loaded Demo Scenarios</span>
+                </div>
+              </div>
+            </div>
+
+            <Link href="/onboarding" className="mt-8 w-full text-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold py-3 px-4 rounded-xl text-xs transition-colors">
+              Get Started Free
+            </Link>
+          </div>
+
+          {/* Card 2: Growth Pro (Popular) */}
+          <div className="bg-white p-8 rounded-3xl border-2 border-blue-600 shadow-xl flex flex-col justify-between relative">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#2563EB] text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider shadow-sm">
+              Most Popular
+            </div>
+
+            <div>
+              <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Growth Pro</div>
+              <h3 className="text-2xl font-bold text-slate-900">Professional</h3>
+              <div className="mt-4 mb-6">
+                <span className="text-4xl font-extrabold text-slate-900">$99</span>
+                <span className="text-slate-500 text-xs font-medium"> / month</span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                Built for apparel brands & commercial businesses requiring live news monitoring and voice advisor.
+              </p>
+
+              <div className="space-y-3 text-xs text-slate-700 font-medium">
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Everything in Basic Starter</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Live News & Web Extraction (SerpApi)</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Interactive Voice Advisor (ElevenLabs)</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Competitor Price & Promo Tracking</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Revenue at Risk Audit Calculations</span>
+                </div>
+              </div>
+            </div>
+
+            <Link href="/onboarding" className="mt-8 w-full text-center bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-xs transition-colors shadow-md shadow-blue-500/20">
+              Start Pro Trial
+            </Link>
+          </div>
+
+          {/* Card 3: Enterprise Pro / Advanced */}
+          <div className="bg-[#0A1328] text-white p-8 rounded-3xl border border-slate-800 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Advance Features</div>
+              <h3 className="text-2xl font-bold text-white">Enterprise Pro</h3>
+              <div className="mt-4 mb-6">
+                <span className="text-4xl font-extrabold text-white">$299</span>
+                <span className="text-slate-400 text-xs font-medium"> / month</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed mb-6">
+                Complete foresight suite equipped with next-generation autonomous AI capabilities & dedicated infra.
+              </p>
+
+              <div className="space-y-3 text-xs text-slate-200 font-medium">
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Everything in Growth Pro</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Autonomous Supply Chain Reordering</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Satellite Commodity Yield Radar</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Custom Fine-Tuned Local LLM Deployment</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Multi-Tenant Enterprise SSO & 24/7 SLA</span>
+                </div>
+              </div>
+            </div>
+
+            <Link href="/onboarding" className="mt-8 w-full text-center bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-xl text-xs transition-colors">
+              Contact Enterprise Sales
+            </Link>
+          </div>
+        </div>
+
+        {/* Complete Feature Comparison Table */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div>
+              <h3 className="font-bold text-slate-900 text-base">Detailed Plan Feature Comparison</h3>
+              <p className="text-xs text-slate-500">Compare all current capabilities and upcoming advance Pro features across plans.</p>
+            </div>
+            <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-bold text-xs">
+              All Features Listed Below
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead className="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
+                <tr>
+                  <th className="p-4 w-2/5">Feature Details</th>
+                  <th className="p-4 text-center w-1/5">Basic Free</th>
+                  <th className="p-4 text-center w-1/5">Growth Pro</th>
+                  <th className="p-4 text-center w-1/5 bg-blue-50/40 text-blue-900">Enterprise Pro</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {/* Section 1: Core Intelligence */}
+                <tr className="bg-slate-50/80 font-bold text-slate-900 text-[11px] uppercase tracking-wider">
+                  <td colSpan={4} className="px-4 py-2 text-blue-900">1. Core Briefing & File Management</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Daily AI Business Briefing Feed</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">CSV Datasets Upload (Sales, Inventory, Financials)</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Pre-loaded Synthetic Business Profiles (Levi's, Apparel)</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+
+                {/* Section 2: Predictive Risk & Advisor */}
+                <tr className="bg-slate-50/80 font-bold text-slate-900 text-[11px] uppercase tracking-wider">
+                  <td colSpan={4} className="px-4 py-2 text-blue-900">2. Predictive Risk & Advisor Engine</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Historical Precedent Matching (2023-2024 Red Sea, Port Crises)</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Interactive AI Voice Advisor (ElevenLabs Speech API)</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Live News Extraction API (SerpApi Google News Feed)</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Competitor Price Index & Active Promo Radar</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">Revenue at Risk Audit Formula Breakdown</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+
+                {/* Section 3: Advance Pro Features */}
+                <tr className="bg-blue-50/80 font-bold text-blue-900 text-[11px] uppercase tracking-wider">
+                  <td colSpan={4} className="px-4 py-2">3. Next-Gen Advance Pro Features (Enterprise Suite)</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">
+                    <span className="flex items-center gap-2">
+                      Autonomous Supply Chain Reordering Agents
+                      <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">Pro Advance</span>
+                    </span>
+                  </td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">
+                    <span className="flex items-center gap-2">
+                      Satellite Commodity Crop Yield Radar Integration
+                      <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">Pro Advance</span>
+                    </span>
+                  </td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">
+                    <span className="flex items-center gap-2">
+                      Custom Fine-Tuned On-Premise LLM Deployment
+                      <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">Pro Advance</span>
+                    </span>
+                  </td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-slate-900">
+                    <span className="flex items-center gap-2">
+                      Multi-Tenant Enterprise SSO, Audit Logs & 24/7 SLA
+                      <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">Pro Advance</span>
+                    </span>
+                  </td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center text-slate-300">—</td>
+                  <td className="p-4 text-center bg-blue-50/20"><Check className="w-4 h-4 text-emerald-500 mx-auto" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. About Section (Scroll Target for #about) */}
       <section id="about" className="py-20 px-8 max-w-7xl mx-auto w-full border-t border-slate-200/80">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-[#2563EB]">
