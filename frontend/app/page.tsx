@@ -14,8 +14,9 @@ export default function LandingPage() {
         {/* Top Bar Navigation */}
         <header className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-icon.png" alt="foresightAI" className="w-8 h-8 object-contain" />
-            <span className="font-bold text-xl tracking-tight text-white">foresight<span className="text-[#3B82F6]">AI</span></span>
+            <span className="font-bold text-2xl tracking-tight text-white">
+              f<span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent font-extrabold">o</span>resight<span className="text-[#3B82F6]">AI</span>
+            </span>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-sm text-slate-300">
@@ -44,7 +45,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              <strong className="text-white font-semibold">foresightAI</strong> monitors global events, understands how they affect your business, and gives you personalized insights — so you can stay ahead, reduce risks and find new opportunities.
+              <strong className="text-white font-semibold">f<span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-extrabold">o</span>resight<span className="text-[#3B82F6]">AI</span></strong> monitors global events, understands how they affect your business, and gives you personalized insights — so you can stay ahead, reduce risks and find new opportunities.
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -60,12 +61,17 @@ export default function LandingPage() {
           </div>
 
           {/* Hero Earth Globe Illustration */}
-          <div className="relative flex justify-center items-center">
-            <div className="w-80 h-80 md:w-96 md:h-96 rounded-full bg-gradient-to-tr from-blue-900/40 via-blue-600/20 to-cyan-400/40 border border-blue-500/30 flex items-center justify-center relative shadow-2xl backdrop-blur-sm">
-              <div className="w-64 h-64 md:w-72 md:h-72 rounded-full border border-blue-400/20 animate-spin-slow flex items-center justify-center">
-                <div className="w-48 h-48 rounded-full border border-blue-300/30 border-dashed" />
-              </div>
-              <img src="/logo-icon.png" alt="Globe Core" className="w-24 h-24 object-contain absolute opacity-90 drop-shadow-[0_0_25px_rgba(59,130,246,0.6)]" />
+          <div className="relative flex justify-center items-center lg:justify-end">
+            <div className="relative w-80 h-80 sm:w-[420px] sm:h-[420px] lg:w-[480px] lg:h-[480px]">
+              {/* Atmospheric Outer Glow */}
+              <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-blue-600/30 via-cyan-400/20 to-transparent blur-2xl opacity-90 pointer-events-none" />
+              
+              {/* Photorealistic 3D Earth Globe Image */}
+              <img 
+                src="/earth-hero.jpg" 
+                alt="ForesightAI World Earth Globe" 
+                className="w-full h-full object-cover rounded-full shadow-[0_0_90px_rgba(37,99,235,0.5)] border border-blue-400/30 relative z-10" 
+              />
             </div>
           </div>
         </div>
@@ -191,8 +197,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <img src="/logo-icon.png" alt="foresightAI" className="w-6 h-6 object-contain" />
-              <span className="font-bold text-slate-900 text-sm">foresight<span className="text-[#2563EB]">AI</span></span>
+              <span className="font-bold text-slate-900 text-base tracking-tight">
+                f<span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent font-extrabold">o</span>resight<span className="text-[#2563EB]">AI</span>
+              </span>
             </div>
             <span className="text-slate-400">|</span>
             <span>Better insights. Stronger businesses.</span>

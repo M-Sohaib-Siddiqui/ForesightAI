@@ -32,10 +32,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#F4F6FA] flex flex-col justify-center py-12 px-6 font-sans text-slate-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4">
-          <img src="/logo-icon.png" alt="foresightAI" className="w-10 h-10 object-contain" />
+        <Link href="/" className="inline-flex items-center justify-center gap-2 mb-2">
+          <span className="font-bold text-3xl tracking-tight text-slate-900">
+            f<span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent font-extrabold">o</span>resight<span className="text-[#2563EB]">AI</span>
+          </span>
         </Link>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Sign in to foresight<span className="text-[#2563EB]">AI</span></h2>
+        <h2 className="text-xl font-semibold text-slate-700 tracking-tight">Sign in to your account</h2>
         <p className="text-xs text-slate-500 mt-1">Enterprise Early-Warning & Decision Support</p>
       </div>
 

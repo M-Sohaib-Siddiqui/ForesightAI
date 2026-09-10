@@ -401,8 +401,9 @@ export default function DashboardPage() {
         <div>
           {/* Logo Brand Bar */}
           <div className="p-6 flex items-center gap-3 border-b border-slate-800/80">
-            <img src="/logo-icon.png" alt="foresightAI" className="w-7 h-7 object-contain" />
-            <span className="font-bold text-white text-lg tracking-tight">foresight<span className="text-[#3B82F6]">AI</span></span>
+            <span className="font-bold text-white text-xl tracking-tight">
+              f<span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent font-extrabold">o</span>resight<span className="text-[#3B82F6]">AI</span>
+            </span>
           </div>
 
           {/* Navigation Links */}
