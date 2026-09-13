@@ -76,12 +76,22 @@ export default function DashboardPage() {
     }
   };
 
+  // Dynamic Current Date formatting
+  const [currentDateFormatted, setCurrentDateFormatted] = useState('');
+  const [currentDateShort, setCurrentDateShort] = useState('');
+
   useEffect(() => {
     const email = localStorage.getItem('bf_user_email');
     if (email) {
       setUserEmail(email);
     }
     fetchSystemStatus();
+
+    const now = new Date();
+    const fullDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const shortDate = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    setCurrentDateFormatted(fullDate);
+    setCurrentDateShort(shortDate);
   }, []);
 
   const handleLogout = () => {
@@ -672,11 +682,11 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Good morning, Levi's.</h1>
-              <p className="text-slate-500 text-sm mt-1">Here's your business briefing for September 10, 2026.</p>
+              <p className="text-slate-500 text-sm mt-1">Here's your business briefing for {currentDateFormatted || 'today'}.</p>
             </div>
             <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs text-slate-600">
               <Sun className="w-4 h-4 text-amber-500" />
-              <span>Thu, Sep 10, 2026</span>
+              <span>{currentDateShort || 'Today'}</span>
               <span className="text-slate-300">|</span>
               <span className="font-semibold text-slate-800">18°C Global</span>
             </div>
