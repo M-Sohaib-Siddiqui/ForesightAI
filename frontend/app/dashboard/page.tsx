@@ -46,8 +46,20 @@ import {
 export default function DashboardPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState('demo@levis.com');
+  const [businessName, setBusinessName] = useState("Levi's");
   const [activeTab, setActiveTab] = useState<'overview' | 'briefing' | 'scenarios' | 'risk' | 'advisor' | 'competitors' | 'files'>('overview');
   const [showDiagnosticsModal, setShowDiagnosticsModal] = useState(false);
+
+  // Business profile checks
+  const isNagina = businessName.toLowerCase().includes('nagina') || 
+                   businessName.toLowerCase().includes('bedding') || 
+                   businessName.toLowerCase().includes('textile');
+
+  const getBusinessInitials = (name: string) => {
+    const parts = name.trim().split(' ').filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
 
   // System API Status
   const [systemMode, setSystemMode] = useState<'LIVE API MODE' | 'SYNTHETIC DEMO MODE'>('SYNTHETIC DEMO MODE');
@@ -88,29 +100,32 @@ export default function DashboardPage() {
     setIsEvaluatingPredictions(true);
     const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     try {
-      // 1. Fetch Today's Live Briefing & Risk Evaluation
       const briefingRes = await fetch(`${apiBase}/api/briefing/today`);
       if (briefingRes.ok) {
         const briefingData = await briefingRes.json();
         setLiveBriefingData(briefingData);
 
-        // Synchronize initial AI Advisor thread with live prediction context for today
         setChatHistory([
           {
             role: 'advisor',
             question: 'Initial Greeting',
-            answer: `Welcome to your ForesightAI Business Advisor for Levi's. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring external supply chains, raw cotton spot prices ($1.40/lb), shipping lead times (+12 days), and competitor pricing across Wrangler, Zara, and AE. How can I assist your executive strategy today?`,
+            answer: isNagina 
+              ? `Welcome to your ForesightAI Business Advisor for Nagina Bedding Store. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring Pakistan raw yarn spot prices (Faisalabad/Multan mills), Karachi Port clearance lead times, and retail competitor pricing across ChenOne Home, Khaadi Home, and Ideas Home. How can I assist your executive strategy today?`
+              : `Welcome to your ForesightAI Business Advisor for ${businessName}. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring external supply chains, raw material costs, shipping lead times, and competitor retail pricing. How can I assist your executive strategy today?`,
             retrieved_facts: [
-              `Configured Profile: Levi's (Apparel & Fashion Retail)`,
+              `Configured Profile: ${businessName}`,
               `Evaluated Briefing Date: ${briefingData.briefing_date || 'Live Today'}`,
-              `Active Data: Synthetic Levi's Sales, Inventory & Cost Files`,
-              `Competitor Watchlist: Wrangler, Zara, American Eagle`
+              isNagina ? `Active Data: Nagina Bedding Sales, Inventory & Cost Datasets (PKR)` : `Active Data: ${businessName} Sales, Inventory & Cost Files`,
+              isNagina ? `Competitor Watchlist: ChenOne Home, Khaadi Home, Ideas Home` : `Competitor Watchlist: Primary Industry Competitors`
             ],
             model_estimates: [
-              `Overall Risk Level: ${briefingData.overall_business_risk || 'Moderate'} (Score: ${briefingData.risk_analysis?.overall_score || 78}/100)`,
-              `Estimated Revenue at Risk: $${(briefingData.risk_analysis?.estimated_revenue_at_risk_usd || 1250000).toLocaleString()}`
+              `Overall Risk Level: ${briefingData.overall_business_risk || 'Moderate'} (Score: ${briefingData.risk_analysis?.overall_score || (isNagina ? 74 : 78)}/100)`,
+              `Estimated Revenue at Risk: ${isNagina ? 'PKR 3,450,000.00' : '$1,250,000.00'}`
             ],
-            recommended_actions: briefingData.risk_analysis?.recommended_actions || [
+            recommended_actions: isNagina ? [
+              "Procure 60-day yarn & cotton fabric buffer from Faisalabad & Multan mills.",
+              "Adjust retail prices on luxury comforter sets to preserve 42% gross margin."
+            ] : [
               "Extend supplier reorder buffer from 24 days to 38 days.",
               "Lock fixed 6-month ocean freight container contracts."
             ]
@@ -118,7 +133,6 @@ export default function DashboardPage() {
         ]);
       }
 
-      // 2. Fetch Live Competitor Intelligence Analysis
       const compRes = await fetch(`${apiBase}/api/competitors/analysis`);
       if (compRes.ok) {
         const compData = await compRes.json();
@@ -138,6 +152,10 @@ export default function DashboardPage() {
     if (email) {
       setUserEmail(email);
     }
+    const savedName = localStorage.getItem('bf_business_name');
+    if (savedName && savedName.trim()) {
+      setBusinessName(savedName);
+    }
     fetchSystemStatus();
     evaluateLatestPredictions();
 
@@ -151,7 +169,8 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem('bf_user_email');
     localStorage.removeItem('bf_auth_token');
-    router.push('/login');
+    localStorage.removeItem('bf_business_name');
+    window.location.href = '/login';
   };
 
   // Voice Advisor State
@@ -576,10 +595,10 @@ export default function DashboardPage() {
           <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-slate-700 text-white font-bold text-xs flex items-center justify-center shrink-0 border border-slate-600">
-                LS
+                {getBusinessInitials(businessName)}
               </div>
               <div className="truncate text-xs">
-                <div className="font-semibold text-white truncate">Levi's Store</div>
+                <div className="font-semibold text-white truncate">{businessName}</div>
                 <div className="text-slate-400 truncate text-[11px]">{userEmail}</div>
               </div>
             </div>
@@ -747,14 +766,14 @@ export default function DashboardPage() {
           {/* Executive Greeting Header (Matching Mockup Right Top) */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Good morning, Levi's.</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Good morning, {businessName}.</h1>
               <p className="text-slate-500 text-sm mt-1">Here's your business briefing for {currentDateFormatted || 'today'}.</p>
             </div>
             <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs text-slate-600">
               <Sun className="w-4 h-4 text-amber-500" />
               <span>{currentDateShort || 'Today'}</span>
               <span className="text-slate-300">|</span>
-              <span className="font-semibold text-slate-800">18°C Global</span>
+              <span className="font-semibold text-slate-800">{isNagina ? 'Karachi, PK (31°C)' : '18°C Global'}</span>
             </div>
           </div>
 
@@ -795,8 +814,14 @@ export default function DashboardPage() {
                             <AlertTriangle className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="font-semibold text-slate-900 text-sm">Red Sea Shipping Route Security Threat</div>
-                            <div className="text-xs text-slate-500 mt-0.5">Suez Canal rerouting adds 10-14 days lead time for Asian suppliers.</div>
+                            <div className="font-semibold text-slate-900 text-sm">
+                              {isNagina ? "Pakistan Cotton & Raw Yarn Spot Price Surge (+18%)" : "Red Sea Shipping Route Security Threat"}
+                            </div>
+                            <div className="text-xs text-slate-500 mt-0.5">
+                              {isNagina 
+                                ? "Drought & power tariff hikes across Faisalabad & Multan mills driving fabric COGS inflation." 
+                                : "Suez Canal rerouting adds 10-14 days lead time for Asian suppliers."}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -815,8 +840,14 @@ export default function DashboardPage() {
                             <TrendingUp className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="font-semibold text-slate-900 text-sm">Global Raw Cotton Spot Price Surge (+14%)</div>
-                            <div className="text-xs text-slate-500 mt-0.5">Drought conditions in cotton belts creating fabric COGS inflation.</div>
+                            <div className="font-semibold text-slate-900 text-sm">
+                              {isNagina ? "Port of Karachi Import Freight Clearance Delays" : "Global Raw Material Spot Price Surge (+14%)"}
+                            </div>
+                            <div className="text-xs text-slate-500 mt-0.5">
+                              {isNagina 
+                                ? "Customs backlogs at KPT adding 7-10 days delay for imported dyes & packaging." 
+                                : "Drought conditions in primary commodity belts creating input COGS inflation."}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -835,8 +866,14 @@ export default function DashboardPage() {
                             <Users className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="font-semibold text-slate-900 text-sm">US Consumer Demand Shift to Value Staples</div>
-                            <div className="text-xs text-slate-500 mt-0.5">Strong consumer velocity for core 501 Original and Ribcage denim lines.</div>
+                            <div className="font-semibold text-slate-900 text-sm">
+                              {isNagina ? "Karachi & Regional Wedding Season Demand Surge" : "Consumer Demand Shift to Heritage Staples"}
+                            </div>
+                            <div className="text-xs text-slate-500 mt-0.5">
+                              {isNagina 
+                                ? "Strong retail foot traffic for luxury comforter sets, bedsheet packages & bridal linens." 
+                                : "Strong consumer velocity for core quality product lines."}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -1001,15 +1038,15 @@ export default function DashboardPage() {
                     <div className="space-y-2.5 text-xs text-slate-700">
                       <div className="flex items-start gap-2.5">
                         <span className="w-5 h-5 rounded-full bg-slate-100 font-bold text-[11px] text-slate-700 flex items-center justify-center shrink-0">1</span>
-                        <p>Extend supplier reorder buffer from 24 to 38 days for Vietnam vendors.</p>
+                        <p>{isNagina ? "Procure 60-day yarn & cotton fabric buffer from Faisalabad & Multan mills." : "Extend supplier reorder buffer from 24 to 38 days for overseas vendors."}</p>
                       </div>
                       <div className="flex items-start gap-2.5">
                         <span className="w-5 h-5 rounded-full bg-slate-100 font-bold text-[11px] text-slate-700 flex items-center justify-center shrink-0">2</span>
-                        <p>Increase safety stock for high-demand denim SKUs (501 & Ribcage).</p>
+                        <p>{isNagina ? "Adjust retail prices on luxury comforter sets to preserve 42% gross margin." : `Increase safety stock for high-demand core SKUs of ${businessName}.`}</p>
                       </div>
                       <div className="flex items-start gap-2.5">
                         <span className="w-5 h-5 rounded-full bg-slate-100 font-bold text-[11px] text-slate-700 flex items-center justify-center shrink-0">3</span>
-                        <p>Lock in 6-month ocean container rates to prevent spot surcharges.</p>
+                        <p>{isNagina ? "Accelerate local Karachi store inventory restocking for top-selling printed bedsheet SKUs." : "Lock in 6-month fixed container rates to prevent spot surcharges."}</p>
                       </div>
                     </div>
                   </div>
