@@ -80,12 +80,66 @@ export default function DashboardPage() {
   const [currentDateFormatted, setCurrentDateFormatted] = useState('');
   const [currentDateShort, setCurrentDateShort] = useState('');
 
+  // Dynamic Live Predictions & Evaluation State
+  const [liveBriefingData, setLiveBriefingData] = useState<any>(null);
+  const [isEvaluatingPredictions, setIsEvaluatingPredictions] = useState(false);
+
+  const evaluateLatestPredictions = async () => {
+    setIsEvaluatingPredictions(true);
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    try {
+      // 1. Fetch Today's Live Briefing & Risk Evaluation
+      const briefingRes = await fetch(`${apiBase}/api/briefing/today`);
+      if (briefingRes.ok) {
+        const briefingData = await briefingRes.json();
+        setLiveBriefingData(briefingData);
+
+        // Synchronize initial AI Advisor thread with live prediction context for today
+        setChatHistory([
+          {
+            role: 'advisor',
+            question: 'Initial Greeting',
+            answer: `Welcome to your ForesightAI Business Advisor for Levi's. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring external supply chains, raw cotton spot prices ($1.40/lb), shipping lead times (+12 days), and competitor pricing across Wrangler, Zara, and AE. How can I assist your executive strategy today?`,
+            retrieved_facts: [
+              `Configured Profile: Levi's (Apparel & Fashion Retail)`,
+              `Evaluated Briefing Date: ${briefingData.briefing_date || 'Live Today'}`,
+              `Active Data: Synthetic Levi's Sales, Inventory & Cost Files`,
+              `Competitor Watchlist: Wrangler, Zara, American Eagle`
+            ],
+            model_estimates: [
+              `Overall Risk Level: ${briefingData.overall_business_risk || 'Moderate'} (Score: ${briefingData.risk_analysis?.overall_score || 78}/100)`,
+              `Estimated Revenue at Risk: $${(briefingData.risk_analysis?.estimated_revenue_at_risk_usd || 1250000).toLocaleString()}`
+            ],
+            recommended_actions: briefingData.risk_analysis?.recommended_actions || [
+              "Extend supplier reorder buffer from 24 days to 38 days.",
+              "Lock fixed 6-month ocean freight container contracts."
+            ]
+          }
+        ]);
+      }
+
+      // 2. Fetch Live Competitor Intelligence Analysis
+      const compRes = await fetch(`${apiBase}/api/competitors/analysis`);
+      if (compRes.ok) {
+        const compData = await compRes.json();
+        if (compData.competitors && Array.isArray(compData.competitors)) {
+          setCompetitorsList(compData.competitors);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not evaluate live predictions from backend API:", err);
+    } finally {
+      setIsEvaluatingPredictions(false);
+    }
+  };
+
   useEffect(() => {
     const email = localStorage.getItem('bf_user_email');
     if (email) {
       setUserEmail(email);
     }
     fetchSystemStatus();
+    evaluateLatestPredictions();
 
     const now = new Date();
     const fullDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -557,7 +611,19 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-3 text-xs">
+            {/* Re-Run Live Predictions Engine */}
+            <button
+              type="button"
+              onClick={evaluateLatestPredictions}
+              disabled={isEvaluatingPredictions}
+              className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-full font-semibold transition-all shadow-sm"
+              title="Run Live Prediction Evaluation Engine"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${isEvaluatingPredictions ? 'animate-spin text-blue-600' : 'text-blue-600'}`} />
+              <span>{isEvaluatingPredictions ? 'Evaluating Latest...' : 'Re-Run Predictions'}</span>
+            </button>
+
             {/* Mode Badge */}
             <button
               type="button"
