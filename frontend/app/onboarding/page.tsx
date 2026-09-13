@@ -149,15 +149,23 @@ export default function OnboardingPage() {
 
         {/* Multi-step progress bar */}
         <div className="flex items-center justify-center gap-4 mb-8">
-          <div className={`flex items-center gap-2 text-xs font-semibold ${step === 1 ? 'text-slate-900' : 'text-slate-400'}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 1 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>1</span>
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className={`flex items-center gap-2 text-xs font-semibold cursor-pointer border-none bg-transparent ${step === 1 ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 1 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>1</span>
             Business Profile
-          </div>
+          </button>
           <div className="w-12 h-px bg-slate-200"></div>
-          <div className={`flex items-center gap-2 text-xs font-semibold ${step === 2 ? 'text-slate-900' : 'text-slate-400'}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 2 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>2</span>
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            className={`flex items-center gap-2 text-xs font-semibold cursor-pointer border-none bg-transparent ${step === 2 ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 2 ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'}`}>2</span>
             Data File Uploads
-          </div>
+          </button>
         </div>
 
         {/* STEP 1: Business Profile Form with Dropdown Selection Lists */}
@@ -343,7 +351,15 @@ export default function OnboardingPage() {
             </div>
 
             <div className="pt-4 flex justify-end">
-              <button onClick={() => setStep(2)} className="btn-primary">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setStep(2);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2 shadow-sm cursor-pointer transition-colors"
+              >
                 Continue to Data File Uploads
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -455,13 +471,25 @@ export default function OnboardingPage() {
 
             {/* Action buttons */}
             <div className="pt-4 flex items-center justify-between border-t border-slate-100">
-              <button onClick={() => setStep(1)} className="btn-secondary">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setStep(1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-medium px-4 py-2 rounded-lg text-sm inline-flex items-center gap-2 cursor-pointer transition-colors"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Profile
               </button>
               <button
-                onClick={handleCompleteOnboarding}
-                className="btn-primary"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCompleteOnboarding();
+                }}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2 shadow-sm cursor-pointer transition-colors"
               >
                 Confirm Import & Enter Dashboard
                 <ArrowRight className="w-4 h-4" />
