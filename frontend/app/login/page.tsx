@@ -12,21 +12,25 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMsg('');
+
+    if (!email.trim() || !password.trim()) {
+      setErrorMsg('Please enter a valid email and password.');
+      return;
+    }
+
     setLoading(true);
 
-    setTimeout(() => {
-      if (email.trim() && password.trim()) {
-        localStorage.setItem('bf_user_email', email);
-        localStorage.setItem('bf_auth_token', 'jwt-token-demo-001');
-        router.push('/dashboard');
-      } else {
-        setErrorMsg('Please enter a valid email and password.');
-        setLoading(false);
-      }
-    }, 600);
+    try {
+      localStorage.setItem('bf_user_email', email);
+      localStorage.setItem('bf_auth_token', 'jwt-token-demo-001');
+    } catch (err) {
+      console.error(err);
+    }
+
+    window.location.href = '/dashboard';
   };
 
   return (

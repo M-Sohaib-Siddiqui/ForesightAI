@@ -26,6 +26,17 @@ export default function OnboardingPage() {
     currency: "USD"
   });
 
+  React.useEffect(() => {
+    try {
+      const savedName = localStorage.getItem('bf_business_name');
+      if (savedName) {
+        setProfile(prev => ({ ...prev, name: savedName }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   const handleFillDemoProfile = (type: 'levis' | 'nagina') => {
     if (type === 'levis') {
       setProfile({
@@ -111,7 +122,7 @@ export default function OnboardingPage() {
   };
 
   const handleCompleteOnboarding = () => {
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   return (

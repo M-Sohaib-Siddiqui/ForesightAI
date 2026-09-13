@@ -13,21 +13,29 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSignUp = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignUp = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMsg('');
+
+    if (!email.trim() || !password.trim()) {
+      setErrorMsg('Please complete all required fields.');
+      return;
+    }
+
     setLoading(true);
 
-    setTimeout(() => {
-      if (email.trim() && password.trim()) {
-        localStorage.setItem('bf_user_email', email);
-        localStorage.setItem('bf_auth_token', `jwt-token-${Date.now()}`);
-        router.push('/onboarding');
-      } else {
-        setErrorMsg('Please complete all required fields.');
-        setLoading(false);
+    try {
+      localStorage.setItem('bf_user_email', email);
+      if (businessName.trim()) {
+        localStorage.setItem('bf_business_name', businessName);
       }
-    }, 600);
+      localStorage.setItem('bf_auth_token', `jwt-token-${Date.now()}`);
+    } catch (err) {
+      console.error(err);
+    }
+
+    // Direct, reliable navigation to onboarding
+    window.location.href = '/onboarding';
   };
 
   return (
@@ -51,7 +59,7 @@ export default function SignUpPage() {
             </div>
           )}
 
-          <form onSubmit={handleSignUp} className="space-y-5">
+          <form onSubmit={handleSignUp} action="#" className="space-y-5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Company / Business Name</label>
               <div className="relative">
@@ -99,8 +107,9 @@ export default function SignUpPage() {
 
             <button
               type="submit"
+              onClick={(e) => { e.preventDefault(); handleSignUp(e); }}
               disabled={loading}
-              className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition-all"
+              className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               {loading ? "Creating Account..." : "Create Account & Start Onboarding"}
               <ArrowRight className="w-4 h-4" />
