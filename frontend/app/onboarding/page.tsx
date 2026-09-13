@@ -8,23 +8,61 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
 
-  // Form State initialized with Levi's synthetic demonstration profile
+  // Form State initialized EMPTY (Faded placeholder examples shown in form)
   const [profile, setProfile] = useState({
-    name: "Levi's",
-    legal_name: "Levi Strauss & Co.",
-    industry: "Apparel & Fashion Retail",
-    business_type: "Omnichannel / Direct-to-Consumer",
-    business_model: "Brand Manufacturer & Retailer",
-    primary_market: "United States",
-    target_customers: "Men, Women, Kids & Denim Enthusiasts",
-    categories: "Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids",
-    sales_channels: "Official Website, Retail Stores, Wholesale Partners",
-    suppliers: "Denim Corp Vietnam, South Asia Garments Bangladesh, Textile Mills India, LoomWorks China, LeatherCraft Mexico",
-    supplier_countries: "Vietnam, Bangladesh, India, China, Mexico, Turkey",
-    import_dependency: "High (85% overseas garment manufacturing)",
-    operating_dependencies: "Ocean shipping logistics, raw cotton pricing, overseas port operations, retail foot traffic",
+    name: "",
+    legal_name: "",
+    industry: "",
+    business_type: "",
+    business_model: "",
+    primary_market: "",
+    target_customers: "",
+    categories: "",
+    sales_channels: "",
+    suppliers: "",
+    supplier_countries: "",
+    import_dependency: "",
+    operating_dependencies: "",
     currency: "USD"
   });
+
+  const handleFillDemoProfile = (type: 'levis' | 'nagina') => {
+    if (type === 'levis') {
+      setProfile({
+        name: "Levi's",
+        legal_name: "Levi Strauss & Co.",
+        industry: "Apparel & Fashion Retail",
+        business_type: "Omnichannel / Direct-to-Consumer",
+        business_model: "Brand Manufacturer & Retailer",
+        primary_market: "United States",
+        target_customers: "Men, Women, Kids & Denim Enthusiasts",
+        categories: "Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids",
+        sales_channels: "Official Website, Retail Stores, Wholesale Partners",
+        suppliers: "Denim Corp Vietnam, South Asia Garments Bangladesh, Textile Mills India",
+        supplier_countries: "Vietnam, Bangladesh, India, China, Mexico, Turkey",
+        import_dependency: "High (85% overseas garment manufacturing)",
+        operating_dependencies: "Ocean shipping logistics, raw cotton pricing, overseas port operations",
+        currency: "USD"
+      });
+    } else {
+      setProfile({
+        name: "Nagina Bedding Store",
+        legal_name: "Nagina Bedding Store Karachi",
+        industry: "Home Textiles & Bedding Retail",
+        business_type: "Brick-and-Mortar Retail Store Network",
+        business_model: "Retailer & Fabric Assembler",
+        primary_market: "Pakistan",
+        target_customers: "Homeowners, Wedding Buyers & Hospitality",
+        categories: "Bedsheet Sets, Comforter Sets, Pillows, Blankets, Duvet Covers",
+        sales_channels: "Karachi Retail Store, WhatsApp Direct, Online Store",
+        suppliers: "Faisalabad Textile Mills, Multan Weaving Complex, Karachi Foam Products",
+        supplier_countries: "India, Bangladesh, Pakistan",
+        import_dependency: "Moderate (40-60% overseas sourcing)",
+        operating_dependencies: "Yarn prices, domestic freight, local foot traffic",
+        currency: "PKR"
+      });
+    }
+  };
 
   // Upload States
   const [salesValidation, setSalesValidation] = useState<any>(null);
@@ -114,9 +152,27 @@ export default function OnboardingPage() {
         {/* STEP 1: Business Profile Form with Dropdown Selection Lists */}
         {step === 1 && (
           <div className="enterprise-card space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <h2 className="font-semibold text-slate-900">Company Context & Dependencies</h2>
-              <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded font-mono">Levi's Demo Profile Pre-selected</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+              <div>
+                <h2 className="font-semibold text-slate-900">Company Context & Dependencies</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Fill in your company details or load a sample demo profile below.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleFillDemoProfile('levis')}
+                  className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium transition-colors"
+                >
+                  Fill Levi's Demo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleFillDemoProfile('nagina')}
+                  className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium transition-colors"
+                >
+                  Fill Nagina Bedding Demo
+                </button>
+              </div>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -127,8 +183,8 @@ export default function OnboardingPage() {
                   type="text"
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  placeholder="Enter business name (e.g. Levi's)"
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  placeholder="e.g. Levi's Strauss & Co. or Nagina Bedding Store"
+                  className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900 placeholder:text-slate-400"
                 />
               </div>
 
@@ -138,16 +194,18 @@ export default function OnboardingPage() {
                 <select
                   value={profile.industry}
                   onChange={(e) => setProfile({ ...profile, industry: e.target.value })}
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  className={`w-full text-sm border border-slate-300 rounded p-2.5 bg-white focus:outline-none focus:border-slate-900 ${!profile.industry ? 'text-slate-400' : 'text-slate-900'}`}
                 >
-                  <option value="Apparel & Fashion Retail">Apparel & Fashion Retail</option>
-                  <option value="Consumer Electronics & Hardware">Consumer Electronics & Hardware</option>
-                  <option value="Fast Moving Consumer Goods (FMCG)">Fast Moving Consumer Goods (FMCG)</option>
-                  <option value="Food & Beverage / Restaurants">Food & Beverage / Restaurants</option>
-                  <option value="Automotive & Spare Parts">Automotive & Spare Parts</option>
-                  <option value="Industrial Manufacturing & Equipment">Industrial Manufacturing & Equipment</option>
-                  <option value="Healthcare & Pharmaceuticals">Healthcare & Pharmaceuticals</option>
-                  <option value="Luxury Goods & Jewelry">Luxury Goods & Jewelry</option>
+                  <option value="" disabled hidden>e.g. Select Industry (e.g. Apparel & Fashion Retail)</option>
+                  <option value="Apparel & Fashion Retail" className="text-slate-900">Apparel & Fashion Retail</option>
+                  <option value="Home Textiles & Bedding Retail" className="text-slate-900">Home Textiles & Bedding Retail</option>
+                  <option value="Consumer Electronics & Hardware" className="text-slate-900">Consumer Electronics & Hardware</option>
+                  <option value="Fast Moving Consumer Goods (FMCG)" className="text-slate-900">Fast Moving Consumer Goods (FMCG)</option>
+                  <option value="Food & Beverage / Restaurants" className="text-slate-900">Food & Beverage / Restaurants</option>
+                  <option value="Automotive & Spare Parts" className="text-slate-900">Automotive & Spare Parts</option>
+                  <option value="Industrial Manufacturing & Equipment" className="text-slate-900">Industrial Manufacturing & Equipment</option>
+                  <option value="Healthcare & Pharmaceuticals" className="text-slate-900">Healthcare & Pharmaceuticals</option>
+                  <option value="Luxury Goods & Jewelry" className="text-slate-900">Luxury Goods & Jewelry</option>
                 </select>
               </div>
 
@@ -157,14 +215,15 @@ export default function OnboardingPage() {
                 <select
                   value={profile.business_type}
                   onChange={(e) => setProfile({ ...profile, business_type: e.target.value })}
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  className={`w-full text-sm border border-slate-300 rounded p-2.5 bg-white focus:outline-none focus:border-slate-900 ${!profile.business_type ? 'text-slate-400' : 'text-slate-900'}`}
                 >
-                  <option value="Omnichannel / Direct-to-Consumer">Omnichannel / Direct-to-Consumer</option>
-                  <option value="Pure-Play E-Commerce">Pure-Play E-Commerce</option>
-                  <option value="Brick-and-Mortar Retail Store Network">Brick-and-Mortar Retail Store Network</option>
-                  <option value="B2B Wholesale & Distribution">B2B Wholesale & Distribution</option>
-                  <option value="Franchise Network">Franchise Network</option>
-                  <option value="Brand Manufacturer & Retailer">Brand Manufacturer & Retailer</option>
+                  <option value="" disabled hidden>e.g. Select Business Type (e.g. Omnichannel / Direct-to-Consumer)</option>
+                  <option value="Omnichannel / Direct-to-Consumer" className="text-slate-900">Omnichannel / Direct-to-Consumer</option>
+                  <option value="Pure-Play E-Commerce" className="text-slate-900">Pure-Play E-Commerce</option>
+                  <option value="Brick-and-Mortar Retail Store Network" className="text-slate-900">Brick-and-Mortar Retail Store Network</option>
+                  <option value="B2B Wholesale & Distribution" className="text-slate-900">B2B Wholesale & Distribution</option>
+                  <option value="Franchise Network" className="text-slate-900">Franchise Network</option>
+                  <option value="Brand Manufacturer & Retailer" className="text-slate-900">Brand Manufacturer & Retailer</option>
                 </select>
               </div>
 
@@ -174,14 +233,16 @@ export default function OnboardingPage() {
                 <select
                   value={profile.primary_market}
                   onChange={(e) => setProfile({ ...profile, primary_market: e.target.value })}
-                  className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                  className={`w-full text-sm border border-slate-300 rounded p-2.5 bg-white focus:outline-none focus:border-slate-900 ${!profile.primary_market ? 'text-slate-400' : 'text-slate-900'}`}
                 >
-                  <option value="United States">United States</option>
-                  <option value="North America (US, Canada, Mexico)">North America (US, Canada, Mexico)</option>
-                  <option value="European Union (EU)">European Union (EU)</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  <option value="Asia-Pacific (APAC)">Asia-Pacific (APAC)</option>
-                  <option value="Global / Multi-Region">Global / Multi-Region</option>
+                  <option value="" disabled hidden>e.g. Select Primary Market (e.g. United States or Pakistan)</option>
+                  <option value="United States" className="text-slate-900">United States</option>
+                  <option value="Pakistan" className="text-slate-900">Pakistan</option>
+                  <option value="North America (US, Canada, Mexico)" className="text-slate-900">North America (US, Canada, Mexico)</option>
+                  <option value="European Union (EU)" className="text-slate-900">European Union (EU)</option>
+                  <option value="United Kingdom" className="text-slate-900">United Kingdom</option>
+                  <option value="Asia-Pacific (APAC)" className="text-slate-900">Asia-Pacific (APAC)</option>
+                  <option value="Global / Multi-Region" className="text-slate-900">Global / Multi-Region</option>
                 </select>
               </div>
             </div>
@@ -192,21 +253,25 @@ export default function OnboardingPage() {
               <select
                 value={profile.categories}
                 onChange={(e) => setProfile({ ...profile, categories: e.target.value })}
-                className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                className={`w-full text-sm border border-slate-300 rounded p-2.5 bg-white focus:outline-none focus:border-slate-900 ${!profile.categories ? 'text-slate-400' : 'text-slate-900'}`}
               >
-                <option value="Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids">
+                <option value="" disabled hidden>e.g. Select Categories (e.g. Jeans, Tops, Bedsheets)</option>
+                <option value="Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids" className="text-slate-900">
                   Men's Jeans, Women's Jeans, Tops, Outerwear, Pants/Chinos, Accessories, Kids (Apparel)
                 </option>
-                <option value="Consumer Electronics, Smart Accessories, Audio Equipment">
+                <option value="Bedsheet Sets, Comforter Sets, Pillows, Blankets, Duvet Covers" className="text-slate-900">
+                  Bedsheet Sets, Comforter Sets, Pillows, Blankets, Duvet Covers (Home Textiles)
+                </option>
+                <option value="Consumer Electronics, Smart Accessories, Audio Equipment" className="text-slate-900">
                   Consumer Electronics, Smart Accessories, Audio Equipment
                 </option>
-                <option value="Home & Living Goods, Furniture, Kitchenware">
+                <option value="Home & Living Goods, Furniture, Kitchenware" className="text-slate-900">
                   Home & Living Goods, Furniture, Kitchenware
                 </option>
-                <option value="Footwear, Athletic Apparel, Sportswear">
+                <option value="Footwear, Athletic Apparel, Sportswear" className="text-slate-900">
                   Footwear, Athletic Apparel, Sportswear
                 </option>
-                <option value="Packaged Foods, Beverages, Grocery Items">
+                <option value="Packaged Foods, Beverages, Grocery Items" className="text-slate-900">
                   Packaged Foods, Beverages, Grocery Items
                 </option>
               </select>
@@ -218,24 +283,25 @@ export default function OnboardingPage() {
               <select
                 value={profile.supplier_countries}
                 onChange={(e) => setProfile({ ...profile, supplier_countries: e.target.value })}
-                className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                className={`w-full text-sm border border-slate-300 rounded p-2.5 bg-white focus:outline-none focus:border-slate-900 ${!profile.supplier_countries ? 'text-slate-400' : 'text-slate-900'}`}
               >
-                <option value="Vietnam, Bangladesh, India, China, Mexico, Turkey">
+                <option value="" disabled hidden>e.g. Select Supplier Countries (e.g. Vietnam, India, Pakistan)</option>
+                <option value="Vietnam, Bangladesh, India, China, Mexico, Turkey" className="text-slate-900">
                   Vietnam, Bangladesh, India, China, Mexico, Turkey (Asia & Global Sourcing)
                 </option>
-                <option value="China, Vietnam, Cambodia">
-                  China, Vietnam, Cambodia (East Asia Sourcing)
-                </option>
-                <option value="India, Bangladesh, Pakistan">
+                <option value="India, Bangladesh, Pakistan" className="text-slate-900">
                   India, Bangladesh, Pakistan (South Asia Sourcing)
                 </option>
-                <option value="Mexico, Central America">
+                <option value="China, Vietnam, Cambodia" className="text-slate-900">
+                  China, Vietnam, Cambodia (East Asia Sourcing)
+                </option>
+                <option value="Mexico, Central America" className="text-slate-900">
                   Mexico, Central America (Nearshore Americas)
                 </option>
-                <option value="Europe & Turkey">
+                <option value="Europe & Turkey" className="text-slate-900">
                   Europe & Turkey (EMEA Sourcing)
                 </option>
-                <option value="Domestic Manufacturing Only">
+                <option value="Domestic Manufacturing Only" className="text-slate-900">
                   Domestic Manufacturing Only
                 </option>
               </select>
@@ -247,18 +313,19 @@ export default function OnboardingPage() {
               <select
                 value={profile.import_dependency}
                 onChange={(e) => setProfile({ ...profile, import_dependency: e.target.value })}
-                className="w-full text-sm border border-slate-300 rounded p-2.5 bg-white text-slate-900 focus:outline-none focus:border-slate-900"
+                className={`w-full text-sm border border-slate-300 rounded p-2.5 bg-white focus:outline-none focus:border-slate-900 ${!profile.import_dependency ? 'text-slate-400' : 'text-slate-900'}`}
               >
-                <option value="High (85% overseas garment manufacturing)">
+                <option value="" disabled hidden>e.g. Select Import Dependency (e.g. High 85% overseas garment manufacturing)</option>
+                <option value="High (85% overseas garment manufacturing)" className="text-slate-900">
                   High (85% overseas garment manufacturing)
                 </option>
-                <option value="Moderate (40-60% overseas sourcing)">
+                <option value="Moderate (40-60% overseas sourcing)" className="text-slate-900">
                   Moderate (40-60% overseas sourcing)
                 </option>
-                <option value="Low (10-30% imported components)">
+                <option value="Low (10-30% imported components)" className="text-slate-900">
                   Low (10-30% imported components)
                 </option>
-                <option value="Domestic Sourcing Only (0% import dependency)">
+                <option value="Domestic Sourcing Only (0% import dependency)" className="text-slate-900">
                   Domestic Sourcing Only (0% import dependency)
                 </option>
               </select>
