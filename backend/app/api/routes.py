@@ -184,6 +184,14 @@ def update_profile(profile_data: Dict[str, Any]):
         raise HTTPException(status_code=400, detail=str(e))
 
 from pathlib import Path
+from supabase import create_client, Client
+
+supabase_client: Optional[Client] = None
+if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY and "supabase.co" in settings.SUPABASE_URL:
+    try:
+        supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
+    except Exception as e:
+        print(f"Supabase client initialization warning: {e}")
 
 def get_company_upload_dir(company_name: Optional[str] = None) -> Path:
     name = company_name.strip() if company_name else "default"
@@ -192,23 +200,44 @@ def get_company_upload_dir(company_name: Optional[str] = None) -> Path:
     upload_dir.mkdir(parents=True, exist_ok=True)
     return upload_dir
 
+async def save_uploaded_file(file_name: str, contents: bytes, company_name: Optional[str] = None):
+    slug = "".join(c if c.isalnum() else "_" for c in (company_name or "default").strip().lower())
+    
+    # 1. Save to local disk directory (ensures offline development support)
+    comp_dir = get_company_upload_dir(company_name)
+    local_path = comp_dir / file_name
+    with open(local_path, "wb") as f:
+        f.write(contents)
+
+    # 2. Upload to Supabase Cloud Storage Bucket ('business-datasets') if Supabase is connected
+    cloud_url = None
+    if supabase_client:
+        try:
+            cloud_path = f"{slug}/{file_name}"
+            supabase_client.storage.from_("business-datasets").upload(
+                path=cloud_path,
+                file=contents,
+                file_options={"upsert": "true"}
+            )
+            cloud_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/business-datasets/{cloud_path}"
+        except Exception as e:
+            print(f"Supabase Cloud Storage Upload warning: {e}")
+
+    return {"local_path": str(local_path), "cloud_url": cloud_url}
+
 @router.post("/import/sales")
 async def import_sales(file: UploadFile = File(...), company: Optional[str] = Header(None)):
     global sales_summary_cache
     contents = await file.read()
     
-    # Save file to company storage folder
-    comp_dir = get_company_upload_dir(company)
-    file_path = comp_dir / file.filename
-    with open(file_path, "wb") as f:
-        f.write(contents)
-
+    storage_res = await save_uploaded_file(file.filename, contents, company)
     df = AnalyticsEngine.parse_file(contents, file.filename)
     validation = AnalyticsEngine.validate_sales_data(df)
     sales_summary_cache = validation["summary"]
     return {
         "filename": file.filename,
-        "saved_path": str(file_path),
+        "saved_path": storage_res["local_path"],
+        "cloud_url": storage_res["cloud_url"],
         "validation": validation,
         "status": "imported" if validation["valid"] else "warning"
     }
@@ -218,17 +247,14 @@ async def import_inventory(file: UploadFile = File(...), company: Optional[str] 
     global inventory_summary_cache
     contents = await file.read()
     
-    comp_dir = get_company_upload_dir(company)
-    file_path = comp_dir / file.filename
-    with open(file_path, "wb") as f:
-        f.write(contents)
-
+    storage_res = await save_uploaded_file(file.filename, contents, company)
     df = AnalyticsEngine.parse_file(contents, file.filename)
     validation = AnalyticsEngine.validate_inventory_data(df)
     inventory_summary_cache = validation
     return {
         "filename": file.filename,
-        "saved_path": str(file_path),
+        "saved_path": storage_res["local_path"],
+        "cloud_url": storage_res["cloud_url"],
         "validation": validation,
         "status": "imported" if validation["valid"] else "warning"
     }
@@ -238,35 +264,54 @@ async def import_financials(file: UploadFile = File(...), company: Optional[str]
     global financial_summary_cache
     contents = await file.read()
     
-    comp_dir = get_company_upload_dir(company)
-    file_path = comp_dir / file.filename
-    with open(file_path, "wb") as f:
-        f.write(contents)
-
+    storage_res = await save_uploaded_file(file.filename, contents, company)
     df = AnalyticsEngine.parse_file(contents, file.filename)
     validation = AnalyticsEngine.validate_financial_data(df)
     financial_summary_cache = validation
     return {
         "filename": file.filename,
-        "saved_path": str(file_path),
+        "saved_path": storage_res["local_path"],
+        "cloud_url": storage_res["cloud_url"],
         "validation": validation,
         "status": "imported" if validation["valid"] else "warning"
     }
 
 @router.get("/files/list")
 def list_company_files(company: Optional[str] = None):
-    comp_dir = get_company_upload_dir(company)
+    slug = "".join(c if c.isalnum() else "_" for c in (company or "default").strip().lower())
     saved_files = []
-    if comp_dir.exists():
-        for f in comp_dir.glob("*"):
-            if f.is_file():
-                size_kb = round(f.stat().st_size / 1024, 1)
-                saved_files.append({
-                    "filename": f.name,
-                    "size": f"{size_kb} KB",
-                    "status": "Active & Normalized",
-                    "type": "Custom Uploaded Dataset"
-                })
+
+    # Query Supabase Cloud Storage Bucket first if active
+    if supabase_client:
+        try:
+            res = supabase_client.storage.from_("business-datasets").list(slug)
+            if res:
+                for obj in res:
+                    name = obj.get("name")
+                    if name:
+                        size_kb = round(obj.get("metadata", {}).get("size", 1024) / 1024, 1)
+                        saved_files.append({
+                            "filename": name,
+                            "size": f"{size_kb} KB",
+                            "status": "Active (Supabase Cloud Storage)",
+                            "type": "Cloud Uploaded Dataset"
+                        })
+        except Exception as e:
+            print(f"Supabase Cloud Storage List warning: {e}")
+
+    # Fallback to local disk storage if cloud list is empty
+    if not saved_files:
+        comp_dir = get_company_upload_dir(company)
+        if comp_dir.exists():
+            for f in comp_dir.glob("*"):
+                if f.is_file():
+                    size_kb = round(f.stat().st_size / 1024, 1)
+                    saved_files.append({
+                        "filename": f.name,
+                        "size": f"{size_kb} KB",
+                        "status": "Active (Local Disk)",
+                        "type": "Custom Uploaded Dataset"
+                    })
 
     if not saved_files:
         name_lower = (company or "").lower()
