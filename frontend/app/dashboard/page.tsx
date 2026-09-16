@@ -91,6 +91,7 @@ export default function DashboardPage() {
   // Dynamic Current Date formatting
   const [currentDateFormatted, setCurrentDateFormatted] = useState('');
   const [currentDateShort, setCurrentDateShort] = useState('');
+  const [timeGreeting, setTimeGreeting] = useState('Good morning');
 
   // Dynamic Live Predictions & Evaluation State
   const [liveBriefingData, setLiveBriefingData] = useState<any>(null);
@@ -166,6 +167,15 @@ export default function DashboardPage() {
     evaluateLatestPredictions(savedName);
 
     const now = new Date();
+    const hours = now.getHours();
+    let greeting = 'Good morning';
+    if (hours >= 12 && hours < 17) {
+      greeting = 'Good afternoon';
+    } else if (hours >= 17) {
+      greeting = 'Good evening';
+    }
+    setTimeGreeting(greeting);
+
     const fullDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     const shortDate = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     setCurrentDateFormatted(fullDate);
@@ -780,7 +790,7 @@ export default function DashboardPage() {
           {/* Executive Greeting Header (Matching Mockup Right Top) */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Good morning, {businessName}.</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{timeGreeting}, {businessName}.</h1>
               <p className="text-slate-500 text-sm mt-1">Here's your business briefing for {currentDateFormatted || 'today'}.</p>
             </div>
             <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs text-slate-600">
