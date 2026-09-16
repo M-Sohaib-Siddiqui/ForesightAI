@@ -253,14 +253,55 @@ def get_risk_analysis():
 def advisor_chat(payload: Dict[str, Any] = Body(...)):
     status = system_status()
     question = payload.get("question", "How could today's situation affect my business?")
+    
+    company_name = payload.get("company") or payload.get("business_name") or payload.get("name")
+    target_profile = current_profile
+    if company_name and company_name.strip():
+        if any(k in company_name.lower() for k in ["nagina", "bedding", "textile", "home", "pk"]):
+            target_profile = BusinessProfile(
+                id="biz-nagina-001",
+                name=company_name,
+                legal_name=payload.get("legal_name", company_name),
+                industry="Home Textiles & Bedding Retail",
+                business_type="Brick-and-Mortar Retail Store Network",
+                business_model="Retailer & Fabric Assembler",
+                primary_market="Pakistan",
+                target_customers="Homeowners, Wedding Buyers & Hospitality",
+                categories=["Bedsheet Sets", "Comforter Sets", "Pillows", "Blankets", "Duvet Covers"],
+                sales_channels=["Karachi Retail Store", "WhatsApp Direct", "Online Store"],
+                suppliers=["Faisalabad Textile Mills", "Multan Weaving Complex", "Karachi Foam Products"],
+                supplier_countries=["India", "Bangladesh", "Pakistan"],
+                import_dependency="Moderate (40-60% overseas sourcing)",
+                operating_dependencies="Yarn prices, domestic freight, local foot traffic",
+                currency="PKR"
+            )
+        elif "levi" not in company_name.lower():
+            target_profile = BusinessProfile(
+                id=f"biz-custom-{int(time.time())}",
+                name=company_name,
+                legal_name=payload.get("legal_name", company_name),
+                industry=payload.get("industry", "General Commerce"),
+                business_type=payload.get("business_type", "Omnichannel"),
+                business_model="Retailer & Distributor",
+                primary_market=payload.get("primary_market", "Global"),
+                target_customers="Retail Customers",
+                categories=payload.get("categories", ["Products", "Goods"]),
+                sales_channels=["Direct", "Retail", "Online"],
+                suppliers=["Regional Suppliers"],
+                supplier_countries=payload.get("supplier_countries", ["Domestic", "Overseas"]),
+                import_dependency=payload.get("import_dependency", "Moderate"),
+                operating_dependencies="Supply chain, raw material pricing",
+                currency="USD"
+            )
+
     briefing = briefing_engine.generate_today_briefing(
-        profile=current_profile,
+        profile=target_profile,
         sales_summary=sales_summary_cache,
         inventory_summary=inventory_summary_cache
     )
     ans = advisor_engine.answer_question(
         user_question=question,
-        profile=current_profile,
+        profile=target_profile,
         briefing_context=briefing
     )
     ans["data_source_mode"] = status["overall_mode"]

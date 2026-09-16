@@ -412,7 +412,7 @@ export default function DashboardPage() {
       answer: "Evaluating your query & retrieving macro intelligence context...",
       isLoading: true,
       retrieved_facts: [
-        "Configured Profile Exposure: Levi's (Apparel & Fashion Retail).",
+        `Configured Profile Exposure: ${businessName} (${isNagina ? 'Home Textiles & Bedding Retail' : 'Enterprise Operations'}).`,
         "Searching historical crisis vector database (pgvector HNSW index)..."
       ],
       model_estimates: ["Connecting to Google Gemini 1.5 Pro live reasoning engine..."],
@@ -426,7 +426,11 @@ export default function DashboardPage() {
       const res = await fetch(`${apiBase}/api/advisor/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q }),
+        body: JSON.stringify({ 
+          question: q,
+          company: businessName,
+          business_name: businessName
+        }),
         signal: controller.signal
       });
       if (res.ok) {
