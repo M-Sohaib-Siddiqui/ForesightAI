@@ -724,11 +724,15 @@ export default function DashboardPage() {
                 <div className="p-3.5 rounded-xl border bg-slate-50 border-slate-200">
                   <div className="flex items-center justify-between mb-1">
                     <strong className="text-slate-900 text-sm">2. Supabase Cloud Database & RLS</strong>
-                    <span className="px-2.5 py-0.5 rounded font-mono text-[10px] bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
-                      CONNECTED
+                    <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-bold border ${
+                      apiDiagnostics?.database?.status === 'active_live'
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                        : 'bg-amber-100 text-amber-800 border-amber-300'
+                    }`}>
+                      {apiDiagnostics?.database?.status === 'active_live' ? 'SUPABASE CLOUD ACTIVE' : 'LOCAL FALLBACK'}
                     </span>
                   </div>
-                  <p className="text-slate-600">{apiDiagnostics.database.message}</p>
+                  <p className="text-slate-600">{apiDiagnostics?.database?.message || "Connected to Supabase Cloud Database."}</p>
                   <div className="mt-2 text-[11px] text-slate-500 font-mono">
                     Env Variable: <code>SUPABASE_URL</code>
                   </div>
