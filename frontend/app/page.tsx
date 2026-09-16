@@ -1,8 +1,20 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Play, FileText, History, TrendingUp, Mic, Check, Upload, Building, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Play, FileText, History, TrendingUp, Mic, Check, Upload, Building, ShieldCheck, LayoutDashboard } from 'lucide-react';
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('bf_auth_token');
+    const email = localStorage.getItem('bf_user_email');
+    if (token || email) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FAFCFF] flex flex-col font-sans text-slate-900">
       {/* 1. Dark Hero Section with Globe Aesthetic (Matching Mockup Left Top) */}
@@ -27,12 +39,21 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-5 text-sm">
-            <Link href="/login" className="text-slate-300 hover:text-white transition-colors">
-              Log In
-            </Link>
-            <Link href="/dashboard" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20">
-              Get Started
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-full font-semibold transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4" />
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="text-slate-300 hover:text-white transition-colors font-medium">
+                  Log In
+                </Link>
+                <Link href="/signup" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-blue-500/20">
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
@@ -49,10 +70,18 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
-              <Link href="/onboarding" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-3.5 rounded-full font-medium transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25">
-                Get Started Free
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              {isLoggedIn ? (
+                <Link href="/dashboard" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-3.5 rounded-full font-semibold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Go to Dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <Link href="/onboarding" className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 py-3.5 rounded-full font-medium transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25">
+                  Get Started Free
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
               <a href="#how-it-works" className="border border-slate-700 hover:border-slate-500 bg-slate-900/50 text-white px-6 py-3.5 rounded-full font-medium transition-all flex items-center gap-2">
                 <Play className="w-4 h-4 text-blue-400 fill-blue-400" />
                 Watch Demo

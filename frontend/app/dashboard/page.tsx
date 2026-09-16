@@ -503,11 +503,11 @@ export default function DashboardPage() {
       <aside className="w-64 bg-[#0A1328] text-slate-300 flex flex-col shrink-0 min-h-screen justify-between border-r border-slate-800">
         <div>
           {/* Logo Brand Bar */}
-          <div className="p-6 flex items-center gap-3 border-b border-slate-800/80">
+          <Link href="/" className="p-6 flex items-center gap-3 border-b border-slate-800/80 hover:opacity-90 transition-opacity cursor-pointer">
             <span className="font-bold text-white text-xl tracking-tight">
               f<span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent font-extrabold">o</span>resight<span className="text-[#3B82F6]">AI</span>
             </span>
-          </div>
+          </Link>
 
           {/* Navigation Links */}
           <nav className="p-4 space-y-1.5 text-sm font-medium">
