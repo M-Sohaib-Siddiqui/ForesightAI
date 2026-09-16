@@ -222,11 +222,55 @@ async def import_financials(file: UploadFile = File(...)):
         "status": "imported" if validation["valid"] else "warning"
     }
 
+def resolve_profile_by_company(company_name: Optional[str] = None) -> BusinessProfile:
+    if not company_name or not company_name.strip():
+        return current_profile
+    c_lower = company_name.strip().lower()
+    if any(k in c_lower for k in ["nagina", "bedding", "textile", "home", "pk"]):
+        return BusinessProfile(
+            id="biz-nagina-001",
+            name=company_name,
+            legal_name="Nagina Bedding Store",
+            industry="Home Textiles & Bedding Retail",
+            business_type="Brick-and-Mortar Retail Store Network",
+            business_model="Retailer & Fabric Assembler",
+            primary_market="Pakistan",
+            target_customers="Homeowners, Wedding Buyers & Hospitality",
+            categories=["Bedsheet Sets", "Comforter Sets", "Pillows", "Blankets", "Duvet Covers"],
+            sales_channels=["Karachi Retail Store", "WhatsApp Direct", "Online Store"],
+            suppliers=["Faisalabad Textile Mills", "Multan Weaving Complex", "Karachi Foam Products"],
+            supplier_countries=["India", "Bangladesh", "Pakistan"],
+            import_dependency="Moderate (40-60% overseas sourcing)",
+            operating_dependencies="Yarn prices, domestic freight, local foot traffic",
+            currency="PKR"
+        )
+    elif "levi" in c_lower:
+        return settings.LEVIS_DEFAULT_PROFILE
+    else:
+        return BusinessProfile(
+            id=f"biz-custom-{int(time.time())}",
+            name=company_name,
+            legal_name=company_name,
+            industry="General Commerce",
+            business_type="Omnichannel Retail",
+            business_model="Retailer & Distributor",
+            primary_market="Global Market",
+            target_customers="Retail Consumers",
+            categories=["Products", "Goods"],
+            sales_channels=["Direct", "Retail", "Online"],
+            suppliers=["Regional Suppliers"],
+            supplier_countries=["Domestic", "Overseas"],
+            import_dependency="Moderate",
+            operating_dependencies="Supply chain, raw material pricing",
+            currency="USD"
+        )
+
 @router.get("/briefing/today")
-def get_today_briefing():
+def get_today_briefing(company: Optional[str] = None):
     status = system_status()
+    target_profile = resolve_profile_by_company(company)
     briefing = briefing_engine.generate_today_briefing(
-        profile=current_profile,
+        profile=target_profile,
         sales_summary=sales_summary_cache,
         inventory_summary=inventory_summary_cache
     )
@@ -235,15 +279,16 @@ def get_today_briefing():
     return briefing
 
 @router.get("/scenarios/search")
-def search_scenarios(q: str = ""):
+def search_scenarios(q: str = "", company: Optional[str] = None):
     if q:
         return scenario_engine.match_scenario(q)
     return scenario_engine.get_all_scenarios()
 
 @router.get("/risk/analysis")
-def get_risk_analysis():
+def get_risk_analysis(company: Optional[str] = None):
+    target_profile = resolve_profile_by_company(company)
     briefing = briefing_engine.generate_today_briefing(
-        profile=current_profile,
+        profile=target_profile,
         sales_summary=sales_summary_cache,
         inventory_summary=inventory_summary_cache
     )
@@ -253,46 +298,8 @@ def get_risk_analysis():
 def advisor_chat(payload: Dict[str, Any] = Body(...)):
     status = system_status()
     question = payload.get("question", "How could today's situation affect my business?")
-    
     company_name = payload.get("company") or payload.get("business_name") or payload.get("name")
-    target_profile = current_profile
-    if company_name and company_name.strip():
-        if any(k in company_name.lower() for k in ["nagina", "bedding", "textile", "home", "pk"]):
-            target_profile = BusinessProfile(
-                id="biz-nagina-001",
-                name=company_name,
-                legal_name=payload.get("legal_name", company_name),
-                industry="Home Textiles & Bedding Retail",
-                business_type="Brick-and-Mortar Retail Store Network",
-                business_model="Retailer & Fabric Assembler",
-                primary_market="Pakistan",
-                target_customers="Homeowners, Wedding Buyers & Hospitality",
-                categories=["Bedsheet Sets", "Comforter Sets", "Pillows", "Blankets", "Duvet Covers"],
-                sales_channels=["Karachi Retail Store", "WhatsApp Direct", "Online Store"],
-                suppliers=["Faisalabad Textile Mills", "Multan Weaving Complex", "Karachi Foam Products"],
-                supplier_countries=["India", "Bangladesh", "Pakistan"],
-                import_dependency="Moderate (40-60% overseas sourcing)",
-                operating_dependencies="Yarn prices, domestic freight, local foot traffic",
-                currency="PKR"
-            )
-        elif "levi" not in company_name.lower():
-            target_profile = BusinessProfile(
-                id=f"biz-custom-{int(time.time())}",
-                name=company_name,
-                legal_name=payload.get("legal_name", company_name),
-                industry=payload.get("industry", "General Commerce"),
-                business_type=payload.get("business_type", "Omnichannel"),
-                business_model="Retailer & Distributor",
-                primary_market=payload.get("primary_market", "Global"),
-                target_customers="Retail Customers",
-                categories=payload.get("categories", ["Products", "Goods"]),
-                sales_channels=["Direct", "Retail", "Online"],
-                suppliers=["Regional Suppliers"],
-                supplier_countries=payload.get("supplier_countries", ["Domestic", "Overseas"]),
-                import_dependency=payload.get("import_dependency", "Moderate"),
-                operating_dependencies="Supply chain, raw material pricing",
-                currency="USD"
-            )
+    target_profile = resolve_profile_by_company(company_name)
 
     briefing = briefing_engine.generate_today_briefing(
         profile=target_profile,
@@ -347,8 +354,9 @@ def synthesize_voice(payload: Dict[str, Any] = Body(...)):
     raise HTTPException(status_code=resp.status_code, detail=f"ElevenLabs API Error: {resp.text}")
 
 @router.get("/competitors/analysis")
-def get_competitor_analysis():
-    return competitor_engine.get_analysis(current_profile)
+def get_competitor_analysis(company: Optional[str] = None):
+    target_profile = resolve_profile_by_company(company)
+    return competitor_engine.get_analysis(target_profile)
 
 @router.post("/competitors/add")
 def add_competitor(payload: Dict[str, Any] = Body(...)):

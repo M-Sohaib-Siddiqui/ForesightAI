@@ -96,11 +96,15 @@ export default function DashboardPage() {
   const [liveBriefingData, setLiveBriefingData] = useState<any>(null);
   const [isEvaluatingPredictions, setIsEvaluatingPredictions] = useState(false);
 
-  const evaluateLatestPredictions = async () => {
+  const evaluateLatestPredictions = async (targetBizName?: string) => {
     setIsEvaluatingPredictions(true);
+    const nameToUse = targetBizName || localStorage.getItem('bf_business_name') || businessName;
+    const isNaginaBiz = nameToUse.toLowerCase().includes('nagina') || 
+                        nameToUse.toLowerCase().includes('bedding') || 
+                        nameToUse.toLowerCase().includes('textile');
     const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     try {
-      const briefingRes = await fetch(`${apiBase}/api/briefing/today`);
+      const briefingRes = await fetch(`${apiBase}/api/briefing/today?company=${encodeURIComponent(nameToUse)}`);
       if (briefingRes.ok) {
         const briefingData = await briefingRes.json();
         setLiveBriefingData(briefingData);
@@ -109,20 +113,20 @@ export default function DashboardPage() {
           {
             role: 'advisor',
             question: 'Initial Greeting',
-            answer: isNagina 
+            answer: isNaginaBiz 
               ? `Welcome to your ForesightAI Business Advisor for Nagina Bedding Store. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring Pakistan raw yarn spot prices (Faisalabad/Multan mills), Karachi Port clearance lead times, and retail competitor pricing across ChenOne Home, Khaadi Home, and Ideas Home. How can I assist your executive strategy today?`
-              : `Welcome to your ForesightAI Business Advisor for ${businessName}. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring external supply chains, raw material costs, shipping lead times, and competitor retail pricing. How can I assist your executive strategy today?`,
+              : `Welcome to your ForesightAI Business Advisor for ${nameToUse}. Evaluated live for ${briefingData.briefing_date || 'today'}: I am actively monitoring external supply chains, raw material costs, shipping lead times, and competitor retail pricing. How can I assist your executive strategy today?`,
             retrieved_facts: [
-              `Configured Profile: ${businessName}`,
+              `Configured Profile: ${nameToUse}`,
               `Evaluated Briefing Date: ${briefingData.briefing_date || 'Live Today'}`,
-              isNagina ? `Active Data: Nagina Bedding Sales, Inventory & Cost Datasets (PKR)` : `Active Data: ${businessName} Sales, Inventory & Cost Files`,
-              isNagina ? `Competitor Watchlist: ChenOne Home, Khaadi Home, Ideas Home` : `Competitor Watchlist: Primary Industry Competitors`
+              isNaginaBiz ? `Active Data: Nagina Bedding Sales, Inventory & Cost Datasets (PKR)` : `Active Data: ${nameToUse} Sales, Inventory & Cost Files`,
+              isNaginaBiz ? `Competitor Watchlist: ChenOne Home, Khaadi Home, Ideas Home` : `Competitor Watchlist: Primary Industry Competitors`
             ],
             model_estimates: [
-              `Overall Risk Level: ${briefingData.overall_business_risk || 'Moderate'} (Score: ${briefingData.risk_analysis?.overall_score || (isNagina ? 74 : 78)}/100)`,
-              `Estimated Revenue at Risk: ${isNagina ? 'PKR 3,450,000.00' : '$1,250,000.00'}`
+              `Overall Risk Level: ${briefingData.overall_business_risk || 'Moderate'} (Score: ${briefingData.risk_analysis?.overall_score || (isNaginaBiz ? 74 : 78)}/100)`,
+              `Estimated Revenue at Risk: ${isNaginaBiz ? 'PKR 3,450,000.00' : '$1,250,000.00'}`
             ],
-            recommended_actions: isNagina ? [
+            recommended_actions: isNaginaBiz ? [
               "Procure 60-day yarn & cotton fabric buffer from Faisalabad & Multan mills.",
               "Adjust retail prices on luxury comforter sets to preserve 42% gross margin."
             ] : [
@@ -133,7 +137,7 @@ export default function DashboardPage() {
         ]);
       }
 
-      const compRes = await fetch(`${apiBase}/api/competitors/analysis`);
+      const compRes = await fetch(`${apiBase}/api/competitors/analysis?company=${encodeURIComponent(nameToUse)}`);
       if (compRes.ok) {
         const compData = await compRes.json();
         if (compData.competitors && Array.isArray(compData.competitors)) {
@@ -148,16 +152,18 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    let savedName = localStorage.getItem('bf_business_name');
     const email = localStorage.getItem('bf_user_email');
     if (email) {
       setUserEmail(email);
     }
-    const savedName = localStorage.getItem('bf_business_name');
     if (savedName && savedName.trim()) {
       setBusinessName(savedName);
+    } else {
+      savedName = businessName;
     }
     fetchSystemStatus();
-    evaluateLatestPredictions();
+    evaluateLatestPredictions(savedName);
 
     const now = new Date();
     const fullDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -638,7 +644,7 @@ export default function DashboardPage() {
             {/* Re-Run Live Predictions Engine */}
             <button
               type="button"
-              onClick={evaluateLatestPredictions}
+              onClick={() => evaluateLatestPredictions()}
               disabled={isEvaluatingPredictions}
               className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-full font-semibold transition-all shadow-sm"
               title="Run Live Prediction Evaluation Engine"
@@ -1146,7 +1152,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl font-bold text-slate-900">Today's AI Business Briefing</h1>
-                  <p className="text-slate-500 text-sm mt-1">3 developments today may affect Levi's apparel operations.</p>
+                  <p className="text-slate-500 text-sm mt-1">
+                    3 key developments today affecting <strong className="text-slate-700">{businessName}</strong> operations.
+                  </p>
                 </div>
                 <button onClick={() => setActiveTab('advisor')} className="bg-[#2563EB] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-blue-700">
                   Ask AI Advisor
@@ -1158,33 +1166,47 @@ export default function DashboardPage() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-red-600 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full">High Risk</span>
-                    <span className="text-xs text-slate-400 font-mono">Confidence: 94% | S&P Global Maritime Index</span>
+                    <span className="text-xs text-slate-400 font-mono">Confidence: 94% | {isNagina ? "APTMA & ICE Cotton Index" : "S&P Global Maritime Index"}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900">Red Sea Shipping Route Security Threat & Canal Diversion</h3>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {isNagina ? "Pakistan Cotton & Raw Yarn Spot Price Surge (+18%)" : "Red Sea Shipping Route Security Threat & Canal Diversion"}
+                  </h3>
                   
                   <div className="grid md:grid-cols-2 gap-4 text-xs">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                       <strong className="text-slate-900 block mb-1 text-xs">What Happened:</strong>
-                      <p className="text-slate-600 leading-relaxed">Major container shipping lines (Maersk, MSC, Hapag-Lloyd) are suspending Suez Canal transit due to drone and missile attacks near Bab-el-Mandeb, rerouting around Africa's Cape of Good Hope.</p>
+                      <p className="text-slate-600 leading-relaxed">
+                        {isNagina 
+                          ? "Extended drought across Multan & Faisalabad cotton belts and power tariff hikes driving raw yarn costs to PKR 14,200/maund."
+                          : "Major container shipping lines (Maersk, MSC, Hapag-Lloyd) are suspending Suez Canal transit due to drone and missile attacks near Bab-el-Mandeb, rerouting around Africa's Cape of Good Hope."}
+                      </p>
                     </div>
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                      <strong className="text-slate-900 block mb-1 text-xs">Why It Matters to Levi's:</strong>
-                      <p className="text-slate-600 leading-relaxed">Levi's relies on South Asian manufacturing hubs (Vietnam, Bangladesh, India) for 85% of North American & European replenishment inventory. Rerouting adds 10-14 days lead time and $1,200/TEU ocean freight surcharges.</p>
+                      <strong className="text-slate-900 block mb-1 text-xs">Why It Matters to {businessName}:</strong>
+                      <p className="text-slate-600 leading-relaxed">
+                        {isNagina 
+                          ? `Raw cotton fabric input cost represents 68% of total manufacturing expense for ${businessName}'s luxury comforter sets & sheet packages. Unmitigated yarn inflation erodes gross margin by 450 bps.`
+                          : `${businessName} relies on South Asian manufacturing hubs for replenishment inventory. Rerouting adds 10-14 days lead time and $1,200/TEU ocean freight surcharges.`}
+                      </p>
                     </div>
                   </div>
 
                   <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-xl text-xs space-y-2">
                     <strong className="text-blue-900 font-bold block">Evidence Sources & Data Cited:</strong>
                     <div className="flex flex-wrap gap-2 text-[11px] text-slate-600 font-mono">
-                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">S&P Global Maritime Security Bulletin</span>
-                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">Shanghai Containerized Freight Index (SCFI)</span>
-                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">US Customs Inbound Ocean Bill of Lading Logs</span>
+                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">{isNagina ? "Faisalabad Yarn Exchange Spot Rate Feed" : "S&P Global Maritime Security Bulletin"}</span>
+                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">{isNagina ? "Karachi Cotton Association (KCA) Market Bulletin" : "Shanghai Containerized Freight Index (SCFI)"}</span>
+                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">{isNagina ? "All Pakistan Textile Mills Association (APTMA) Index" : "US Customs Inbound Ocean Bill of Lading Logs"}</span>
                     </div>
                   </div>
 
                   <div className="bg-emerald-50/60 border border-emerald-200 p-4 rounded-xl text-xs">
                     <strong className="text-emerald-900 font-bold block mb-1">Recommended Action Plan:</strong>
-                    <p className="text-emerald-800">Extend supplier reorder trigger buffer from 24 days to 38 days and issue spot ocean container bookings for fall denim arrivals immediately.</p>
+                    <p className="text-emerald-800">
+                      {isNagina 
+                        ? "Procure 60-day raw yarn & cotton fabric buffer from Faisalabad & Multan weaving complex before peak wedding season."
+                        : "Extend supplier reorder trigger buffer from 24 days to 38 days and issue spot ocean container bookings immediately."}
+                    </p>
                   </div>
                 </div>
 
@@ -1192,26 +1214,36 @@ export default function DashboardPage() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-amber-500 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">Medium Risk</span>
-                    <span className="text-xs text-slate-400 font-mono">Confidence: 89% | USDA WASDE Report</span>
+                    <span className="text-xs text-slate-400 font-mono">Confidence: 89% | {isNagina ? "Port of Karachi Customs Logs" : "USDA WASDE Report"}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900">Global Raw Cotton Spot Price Surge (+14% in 30 Days)</h3>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {isNagina ? "Port of Karachi Import Freight Clearance Delays (7-10 Days)" : "Global Raw Cotton Spot Price Surge (+14% in 30 Days)"}
+                  </h3>
 
                   <div className="grid md:grid-cols-2 gap-4 text-xs">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                       <strong className="text-slate-900 block mb-1 text-xs">What Happened:</strong>
-                      <p className="text-slate-600 leading-relaxed">Extended drought conditions across Texas and West Africa have reduced global crop yield estimates by 2.4M bales, driving ICE cotton futures up to $1.40/lb.</p>
+                      <p className="text-slate-600 leading-relaxed">
+                        {isNagina 
+                          ? "Customs clearance backlogs at KPT and QICT terminals creating 7-10 day delays for imported dye chemicals and luxury packaging materials."
+                          : "Extended drought conditions across primary agricultural belts driving raw input costs higher."}
+                      </p>
                     </div>
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                      <strong className="text-slate-900 block mb-1 text-xs">Why It Matters to Levi's:</strong>
-                      <p className="text-slate-600 leading-relaxed">Raw cotton yarn represents ~32% of total fabric input cost for core denim products (501 Original, Trucker Jacket, Ribcage). Cost inflation will compress gross margins by 320 bps without price adjustments.</p>
+                      <strong className="text-slate-900 block mb-1 text-xs">Why It Matters to {businessName}:</strong>
+                      <p className="text-slate-600 leading-relaxed">
+                        {isNagina 
+                          ? `Delayed luxury comforter packaging delays retail store display stock at ${businessName} ahead of peak weekend foot traffic.`
+                          : `Raw material price spikes increase product cost structure for ${businessName}.`}
+                      </p>
                     </div>
                   </div>
 
                   <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-xl text-xs space-y-2">
                     <strong className="text-blue-900 font-bold block">Evidence Sources & Data Cited:</strong>
                     <div className="flex flex-wrap gap-2 text-[11px] text-slate-600 font-mono">
-                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">USDA World Agricultural Supply & Demand Estimates</span>
-                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">ICE Futures US Cotton No. 2 Benchmark</span>
+                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">{isNagina ? "Port of Karachi Inbound Customs Manifest Logs" : "USDA World Agricultural Supply & Demand Estimates"}</span>
+                      <span className="bg-white border border-blue-200 px-2 py-1 rounded">{isNagina ? "Pakistan Customs Clearance Tracker" : "ICE Futures US Cotton No. 2 Benchmark"}</span>
                     </div>
                   </div>
                 </div>
@@ -1220,18 +1252,28 @@ export default function DashboardPage() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm border-l-4 border-l-emerald-600 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">Opportunity</span>
-                    <span className="text-xs text-slate-400 font-mono">Confidence: 91% | US Census Bureau Retail Trade</span>
+                    <span className="text-xs text-slate-400 font-mono">Confidence: 91% | {isNagina ? "Karachi Retail Trade Index" : "US Census Bureau Retail Trade"}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900">US Consumer Demand Shift Toward Heritage Value Staples</h3>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {isNagina ? "Karachi & Regional Wedding Season Demand Surge" : "Consumer Demand Shift Toward Durable Staples"}
+                  </h3>
 
                   <div className="grid md:grid-cols-2 gap-4 text-xs">
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                       <strong className="text-slate-900 block mb-1 text-xs">What Happened:</strong>
-                      <p className="text-slate-600 leading-relaxed">Retail sales data shows consumers pulling back on ultra-fast fashion items in favor of durable, classic apparel wardrobe staples.</p>
+                      <p className="text-slate-600 leading-relaxed">
+                        {isNagina 
+                          ? "Retail store sales data shows a 22% surge in demand for luxury 7-piece bridal comforter sets, bedsheet packages, and velvet duvets."
+                          : "Retail sales data shows consumers pulling back on low-quality items in favor of durable classic staples."}
+                      </p>
                     </div>
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                      <strong className="text-slate-900 block mb-1 text-xs">Why It Matters to Levi's:</strong>
-                      <p className="text-slate-600 leading-relaxed">Levi's 501 Original and straight leg lines are experiencing +18% sell-through velocity in direct-to-consumer digital channels.</p>
+                      <strong className="text-slate-900 block mb-1 text-xs">Why It Matters to {businessName}:</strong>
+                      <p className="text-slate-600 leading-relaxed">
+                        {isNagina 
+                          ? `${businessName}'s 400-thread-count combed cotton sets and bridal comforter collections are experiencing +24% sell-through velocity.`
+                          : `${businessName}'s core product lines are experiencing strong sell-through velocity in direct channels.`}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1244,26 +1286,36 @@ export default function DashboardPage() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">Historical Scenario Intelligence</h1>
-                <p className="text-slate-500 text-sm mt-1">Grounding current decisions in cited, real-world historical precedents.</p>
+                <p className="text-slate-500 text-sm mt-1">Grounding current decisions in cited, real-world historical precedents for <strong className="text-slate-700">{businessName}</strong>.</p>
               </div>
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div>
                     <span className="px-3 py-1 bg-[#0A1328] text-white rounded-full font-bold text-xs">92% Vector Match</span>
-                    <h3 className="text-lg font-bold text-slate-900 mt-2">2023-2024 Red Sea Maritime Supply Chain Disruption</h3>
+                    <h3 className="text-lg font-bold text-slate-900 mt-2">
+                      {isNagina ? "2022 Global Cotton Price Surge & Textile Supply Inflation" : "2023-2024 Red Sea Maritime Supply Chain Disruption"}
+                    </h3>
                   </div>
-                  <span className="text-xs text-slate-400 font-mono">Timeline: Dec 2023 - Apr 2024</span>
+                  <span className="text-xs text-slate-400 font-mono">Timeline: {isNagina ? "Oct 2021 - Aug 2022" : "Dec 2023 - Apr 2024"}</span>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4 text-xs">
                   <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                     <strong className="text-slate-900 font-bold block">Triggering Conditions & Root Cause:</strong>
-                    <p className="text-slate-600 leading-relaxed">Maritime attacks in Bab-el-Mandeb forced vessel rerouting around Cape of Good Hope, causing global vessel capacity bottlenecks and container spot rate surges (+250%).</p>
+                    <p className="text-slate-600 leading-relaxed">
+                      {isNagina 
+                        ? "Severe drought across US & South Asian cotton belts combined with post-COVID supply chain bottlenecks and energy tariff spikes drove raw yarn prices to record highs."
+                        : "Maritime attacks in Bab-el-Mandeb forced vessel rerouting around Cape of Good Hope, causing global vessel capacity bottlenecks and container spot rate surges (+250%)."}
+                    </p>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                    <strong className="text-slate-900 font-bold block">Historical Impact on Apparel Sector:</strong>
-                    <p className="text-slate-600 leading-relaxed">Apparel retailers relying exclusively on East Asian ocean freight experienced 12-day inventory stockouts during peak spring season, resulting in 4.5% revenue loss.</p>
+                    <strong className="text-slate-900 font-bold block">Historical Impact on {isNagina ? "Textile & Bedding Sector" : "Apparel Sector"}:</strong>
+                    <p className="text-slate-600 leading-relaxed">
+                      {isNagina 
+                        ? "Spinning mills experienced 18-24% yarn cost inflation, causing 450 bps gross margin compression for unhedged home textile and bedding retailers."
+                        : "Apparel retailers relying exclusively on East Asian ocean freight experienced 12-day inventory stockouts during peak spring season, resulting in 4.5% revenue loss."}
+                    </p>
                   </div>
                 </div>
 
@@ -1271,9 +1323,19 @@ export default function DashboardPage() {
                 <div className="bg-emerald-50/60 border border-emerald-200 p-4 rounded-xl text-xs space-y-2">
                   <strong className="text-emerald-900 font-bold block">Proven Successful Responses (Green Playbook):</strong>
                   <ul className="list-disc list-inside space-y-1 text-emerald-800">
-                    <li>Nearshoring high-margin replenishment styles to Mexico and Turkey facilities reduced lead time impact by 50%.</li>
-                    <li>Pre-booking 6-month fixed container contracts prevented exposure to peak spot ocean surcharges.</li>
-                    <li>Promoter bundling core denim items into 2-pack bundles offset freight surcharges without sacrificing brand MSRP.</li>
+                    {isNagina ? (
+                      <>
+                        <li>Pre-purchasing raw cotton yarn futures & locking 60-day supplier contracts with Faisalabad & Multan mills retained 80% higher operating margins.</li>
+                        <li>Surgical price adjustments on luxury 7-piece bridal comforter sets while protecting entry-tier sheet pricing.</li>
+                        <li>Direct bulk sales to regional hotel and hospitality buyers offset retail foot-traffic volatility.</li>
+                      </>
+                    ) : (
+                      <>
+                        <li>Nearshoring high-margin replenishment styles to flex facilities reduced lead time impact by 50%.</li>
+                        <li>Pre-booking 6-month fixed container contracts prevented exposure to peak spot ocean surcharges.</li>
+                        <li>Promoter bundling core items into multi-pack bundles offset freight surcharges without sacrificing brand MSRP.</li>
+                      </>
+                    )}
                   </ul>
                 </div>
 
@@ -1281,16 +1343,25 @@ export default function DashboardPage() {
                 <div className="bg-red-50/60 border border-red-200 p-4 rounded-xl text-xs space-y-2">
                   <strong className="text-red-900 font-bold block">Documented Failed Responses (Red Warning):</strong>
                   <ul className="list-disc list-inside space-y-1 text-red-800">
-                    <li>Air-freighting heavy denim garments completely erased retail gross profit margin.</li>
-                    <li>Waiting for ocean spot rates to normalize before placing purchase orders caused stockouts across top 20 retail doors.</li>
+                    {isNagina ? (
+                      <>
+                        <li>Across-the-board 20% price hikes on basic cotton sheets causing immediate drop in walk-in store sales.</li>
+                        <li>Delaying raw yarn procurement during cotton price spikes causing stockouts during peak wedding season.</li>
+                      </>
+                    ) : (
+                      <>
+                        <li>Air-freighting heavy garments completely erased retail gross profit margin.</li>
+                        <li>Waiting for ocean spot rates to normalize before placing purchase orders caused stockouts across top retail doors.</li>
+                      </>
+                    )}
                   </ul>
                 </div>
 
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
                   <strong className="text-slate-900 font-bold block mb-1">Cited Academic & Industry Sources:</strong>
                   <div className="flex flex-wrap gap-2 text-[11px] font-mono text-slate-600">
-                    <span className="bg-white border px-2 py-1 rounded">McKinsey Global Supply Chain Index 2024</span>
-                    <span className="bg-white border px-2 py-1 rounded">Harvard Business Review Freight Case Study #2024-88</span>
+                    <span className="bg-white border px-2 py-1 rounded">{isNagina ? "APTMA Annual Textile Intelligence Report 2022" : "McKinsey Global Supply Chain Index 2024"}</span>
+                    <span className="bg-white border px-2 py-1 rounded">{isNagina ? "USDA Cotton & Wool Outlook 2022" : "Harvard Business Review Freight Case Study #2024-88"}</span>
                   </div>
                 </div>
               </div>
@@ -1302,26 +1373,32 @@ export default function DashboardPage() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">AI Business Impact & Risk Prediction</h1>
-                <p className="text-slate-500 text-sm mt-1">Combining current external events with Levi's sales & inventory metrics.</p>
+                <p className="text-slate-500 text-sm mt-1">Combining current external events with <strong className="text-slate-700">{businessName}</strong> sales & inventory metrics.</p>
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
                   <div className="text-xs text-slate-500 font-medium">Estimated Revenue at Risk</div>
-                  <div className="text-2xl font-bold text-red-600 mt-1">$1,250,000.00</div>
-                  <div className="text-xs text-slate-400 mt-1">Based on Q3 seasonal replenishment volume</div>
+                  <div className="text-2xl font-bold text-red-600 mt-1">
+                    {isNagina ? "PKR 3,450,000.00" : "$1,250,000.00"}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">Based on seasonal replenishment volume</div>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
                   <div className="text-xs text-slate-500 font-medium">Supply Chain Exposure Index</div>
-                  <div className="text-2xl font-bold text-amber-600 mt-1">78 / 100</div>
-                  <div className="text-xs text-slate-400 mt-1">85% overseas garment supplier dependency</div>
+                  <div className="text-2xl font-bold text-amber-600 mt-1">
+                    {isNagina ? "74 / 100" : "78 / 100"}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">{isNagina ? "60% regional weaving mill dependency" : "85% overseas supplier dependency"}</div>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
                   <div className="text-xs text-slate-500 font-medium">COGS Margin Compression</div>
-                  <div className="text-2xl font-bold text-slate-900 mt-1">-320 bps</div>
-                  <div className="text-xs text-slate-400 mt-1">Driven by cotton futures + ocean freight surcharges</div>
+                  <div className="text-2xl font-bold text-slate-900 mt-1">
+                    {isNagina ? "-450 bps" : "-320 bps"}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">{isNagina ? "Driven by raw yarn inflation & Karachi port delays" : "Driven by cotton futures + ocean freight surcharges"}</div>
                 </div>
               </div>
 
@@ -1333,12 +1410,25 @@ export default function DashboardPage() {
 
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-2 font-mono text-slate-700">
                   <div><strong>Revenue at Risk Formula:</strong> Revenue_Risk = (Delayed_Units x Avg_Wholesale_Price x Stockout_Probability)</div>
-                  <div>Delayed Units: 25,000 units (501 Jeans & Trucker Jackets)</div>
-                  <div>Avg Wholesale Price: $62.50 / unit</div>
-                  <div>Stockout Probability (80% confidence): 0.80</div>
-                  <div className="text-blue-700 font-bold pt-1 border-t border-slate-200">
-                    Result: 25,000 x $62.50 x 0.80 = $1,250,000.00
-                  </div>
+                  {isNagina ? (
+                    <>
+                      <div>Delayed Units: 250 units (7-Piece Bridal Comforter Sets & Luxury Sheet Packages)</div>
+                      <div>Avg Wholesale Price: PKR 17,250.00 / unit</div>
+                      <div>Stockout Probability (80% confidence): 0.80</div>
+                      <div className="text-blue-700 font-bold pt-1 border-t border-slate-200">
+                        Result: 250 x PKR 17,250.00 x 0.80 = PKR 3,450,000.00
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>Delayed Units: 25,000 units ({businessName} Core Lines)</div>
+                      <div>Avg Wholesale Price: $62.50 / unit</div>
+                      <div>Stockout Probability (80% confidence): 0.80</div>
+                      <div className="text-blue-700 font-bold pt-1 border-t border-slate-200">
+                        Result: 25,000 x $62.50 x 0.80 = $1,250,000.00
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1359,27 +1449,55 @@ export default function DashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      <tr>
-                        <td className="p-3.5 font-bold text-slate-900">Suez Canal Route Delay</td>
-                        <td className="p-3.5 text-slate-600">Supply Chain</td>
-                        <td className="p-3.5"><span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded font-bold">High (85/100)</span></td>
-                        <td className="p-3.5 font-bold text-slate-900">$750,000.00</td>
-                        <td className="p-3.5 text-slate-600">Advance supplier reorder buffer by 14 days</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3.5 font-bold text-slate-900">Raw Cotton Price Spike</td>
-                        <td className="p-3.5 text-slate-600">Commodity Inflation</td>
-                        <td className="p-3.5"><span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold">Medium (64/100)</span></td>
-                        <td className="p-3.5 font-bold text-slate-900">$320,000.00</td>
-                        <td className="p-3.5 text-slate-600">Execute 6-month yarn supplier price lock</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3.5 font-bold text-slate-900">Competitor Discount Pressure</td>
-                        <td className="p-3.5 text-slate-600">Market Dynamics</td>
-                        <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">Low (38/100)</span></td>
-                        <td className="p-3.5 font-bold text-slate-900">$180,000.00</td>
-                        <td className="p-3.5 text-slate-600">Promote core 501 fit longevity & durability</td>
-                      </tr>
+                      {isNagina ? (
+                        <>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Pakistan Raw Cotton & Yarn Price Spike</td>
+                            <td className="p-3.5 text-slate-600">Commodity Inflation</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded font-bold">High (88/100)</span></td>
+                            <td className="p-3.5 font-bold text-slate-900">PKR 1,850,000.00</td>
+                            <td className="p-3.5 text-slate-600">Execute 60-day raw yarn price lock with Multan weaving complex</td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Port of Karachi Import Freight Clearance Delay</td>
+                            <td className="p-3.5 text-slate-600">Supply Chain</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold">Medium (72/100)</span></td>
+                            <td className="p-3.5 font-bold text-slate-900">PKR 1,100,000.00</td>
+                            <td className="p-3.5 text-slate-600">Clear customs backlogs via secondary clearing agents</td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Competitor Discount Pressure (Ideas Home Sale)</td>
+                            <td className="p-3.5 text-slate-600">Market Dynamics</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">Low (42/100)</span></td>
+                            <td className="p-3.5 font-bold text-slate-900">PKR 500,000.00</td>
+                            <td className="p-3.5 text-slate-600">Promote 400TC combed cotton luxury comforter durability</td>
+                          </tr>
+                        </>
+                      ) : (
+                        <>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Suez Canal Route Delay</td>
+                            <td className="p-3.5 text-slate-600">Supply Chain</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded font-bold">High (85/100)</span></td>
+                            <td className="p-3.5 font-bold text-slate-900">$750,000.00</td>
+                            <td className="p-3.5 text-slate-600">Advance supplier reorder buffer by 14 days</td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Raw Material Price Spike</td>
+                            <td className="p-3.5 text-slate-600">Commodity Inflation</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold">Medium (64/100)</span></td>
+                            <td className="p-3.5 font-bold text-slate-900">$320,000.00</td>
+                            <td className="p-3.5 text-slate-600">Execute 6-month supplier price lock</td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Competitor Discount Pressure</td>
+                            <td className="p-3.5 text-slate-600">Market Dynamics</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">Low (38/100)</span></td>
+                            <td className="p-3.5 font-bold text-slate-900">$180,000.00</td>
+                            <td className="p-3.5 text-slate-600">Promote core product fit & durability</td>
+                          </tr>
+                        </>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -1550,8 +1668,10 @@ export default function DashboardPage() {
 
                       <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs mb-3">
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Avg Jeans MSRP:</span>
-                          <strong className="text-slate-900">${comp.avg_jeans_msrp_usd.toFixed(2)}</strong>
+                          <span className="text-slate-500">{isNagina ? "Avg Bedding Set Price:" : "Avg Product MSRP:"}</span>
+                          <strong className="text-slate-900">
+                            {isNagina ? `PKR ${comp.avg_jeans_msrp_usd.toLocaleString()}` : `$${comp.avg_jeans_msrp_usd.toFixed(2)}`}
+                          </strong>
                         </div>
                         <div className="flex justify-between text-amber-700 font-semibold text-[11px]">
                           <span>Active Promo:</span>
@@ -1582,38 +1702,69 @@ export default function DashboardPage() {
                     <thead className="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
                       <tr>
                         <th className="p-3.5">Category</th>
-                        <th className="p-3.5">Levi's MSRP</th>
-                        <th className="p-3.5">Wrangler Avg</th>
-                        <th className="p-3.5">Zara Avg</th>
-                        <th className="p-3.5">AE Avg</th>
+                        <th className="p-3.5">{businessName} Avg Price</th>
+                        <th className="p-3.5">{isNagina ? "ChenOne Home Avg" : "Wrangler Avg"}</th>
+                        <th className="p-3.5">{isNagina ? "Khaadi Home Avg" : "Zara Avg"}</th>
+                        <th className="p-3.5">{isNagina ? "Ideas Home Avg" : "AE Avg"}</th>
                         <th className="p-3.5">Pricing Power Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      <tr>
-                        <td className="p-3.5 font-bold text-slate-900">Men's Core Denim (501/505)</td>
-                        <td className="p-3.5 font-bold text-blue-700">$79.50</td>
-                        <td className="p-3.5 text-slate-600">$68.00</td>
-                        <td className="p-3.5 text-slate-600">$59.90</td>
-                        <td className="p-3.5 text-slate-600">$54.95</td>
-                        <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">Strong Premium (+24%)</span></td>
-                      </tr>
-                      <tr>
-                        <td className="p-3.5 font-bold text-slate-900">Women's High Rise / Wide Leg</td>
-                        <td className="p-3.5 font-bold text-blue-700">$98.00</td>
-                        <td className="p-3.5 text-slate-600">$72.00</td>
-                        <td className="p-3.5 text-slate-600">$69.90</td>
-                        <td className="p-3.5 text-slate-600">$59.95</td>
-                        <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">High Elasticity (+38%)</span></td>
-                      </tr>
-                      <tr>
-                        <td className="p-3.5 font-bold text-slate-900">Denim Trucker Jackets</td>
-                        <td className="p-3.5 font-bold text-blue-700">$108.00</td>
-                        <td className="p-3.5 text-slate-600">$89.00</td>
-                        <td className="p-3.5 text-slate-600">$79.90</td>
-                        <td className="p-3.5 text-slate-600">$69.95</td>
-                        <td className="p-3.5"><span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold">Heritage Standard (+21%)</span></td>
-                      </tr>
+                      {isNagina ? (
+                        <>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Bridal Luxury Comforter Sets (7-Piece)</td>
+                            <td className="p-3.5 font-bold text-blue-700">PKR 24,500</td>
+                            <td className="p-3.5 text-slate-600">PKR 26,000</td>
+                            <td className="p-3.5 text-slate-600">PKR 22,500</td>
+                            <td className="p-3.5 text-slate-600">PKR 18,900</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">Strong Premium (+12%)</span></td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Export-Quality 400TC Cotton Bedsheet Sets</td>
+                            <td className="p-3.5 font-bold text-blue-700">PKR 8,500</td>
+                            <td className="p-3.5 text-slate-600">PKR 9,800</td>
+                            <td className="p-3.5 text-slate-600">PKR 8,900</td>
+                            <td className="p-3.5 text-slate-600">PKR 6,500</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">High Value (+15%)</span></td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Microfiber Pillows & Cushion Inserts</td>
+                            <td className="p-3.5 font-bold text-blue-700">PKR 2,800</td>
+                            <td className="p-3.5 text-slate-600">PKR 3,200</td>
+                            <td className="p-3.5 text-slate-600">PKR 2,900</td>
+                            <td className="p-3.5 text-slate-600">PKR 2,100</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold">Heritage Standard (+10%)</span></td>
+                          </tr>
+                        </>
+                      ) : (
+                        <>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Men's Core Denim (501/505)</td>
+                            <td className="p-3.5 font-bold text-blue-700">$79.50</td>
+                            <td className="p-3.5 text-slate-600">$68.00</td>
+                            <td className="p-3.5 text-slate-600">$59.90</td>
+                            <td className="p-3.5 text-slate-600">$54.95</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">Strong Premium (+24%)</span></td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Women's High Rise / Wide Leg</td>
+                            <td className="p-3.5 font-bold text-blue-700">$98.00</td>
+                            <td className="p-3.5 text-slate-600">$72.00</td>
+                            <td className="p-3.5 text-slate-600">$69.90</td>
+                            <td className="p-3.5 text-slate-600">$59.95</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">High Elasticity (+38%)</span></td>
+                          </tr>
+                          <tr>
+                            <td className="p-3.5 font-bold text-slate-900">Denim Trucker Jackets</td>
+                            <td className="p-3.5 font-bold text-blue-700">$108.00</td>
+                            <td className="p-3.5 text-slate-600">$89.00</td>
+                            <td className="p-3.5 text-slate-600">$79.90</td>
+                            <td className="p-3.5 text-slate-600">$69.95</td>
+                            <td className="p-3.5"><span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-bold">Heritage Standard (+21%)</span></td>
+                          </tr>
+                        </>
+                      )}
                     </tbody>
                   </table>
                 </div>
