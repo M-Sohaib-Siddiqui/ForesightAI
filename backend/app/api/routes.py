@@ -5,7 +5,7 @@ from typing import Dict, Any, Optional
 import hashlib
 import time
 import requests
-from app.core.config import settings, BusinessProfile
+from app.core.config import settings, BusinessProfile, DATA_DIR
 from app.services.analytics_engine import AnalyticsEngine
 from app.services.scenario_engine import HistoricalScenarioEngine
 from app.services.risk_engine import RiskImpactEngine
@@ -381,6 +381,24 @@ def resolve_profile_by_company(company_name: Optional[str] = None) -> BusinessPr
             operating_dependencies="Yarn prices, domestic freight, local foot traffic",
             currency="PKR"
         )
+    elif any(k in c_lower for k in ["ikea", "furniture", "furnishing", "home decor", "shelving"]):
+        prof = BusinessProfile(
+            id="biz-ikea-001",
+            name=c_clean if c_clean else "IKEA",
+            legal_name="Inter IKEA Systems B.V.",
+            industry="Home Furnishings & Furniture Retail",
+            business_type="Global Retail Franchise & Omnichannel Store Network",
+            business_model="Flat-Pack Manufacturer & Retailer",
+            primary_market="Global / North America & Europe",
+            target_customers="Homeowners, Renters, Office Managers & Assembly DIYers",
+            categories=["Living Room Storage", "Modular Shelving", "Bedroom Furniture", "Seating & Chairs", "Home Accessories"],
+            sales_channels=["IKEA Retail Stores", "Official Website & App", "Click & Collect Distribution Hubs"],
+            suppliers=["European Timber Mills", "Swedish Metal Works", "Poland Particleboard Corp", "Vietnam Textile Suppliers"],
+            supplier_countries=["Sweden", "Poland", "Germany", "Vietnam", "China"],
+            import_dependency="High (80% overseas wood fiber & metal components)",
+            operating_dependencies="Ocean container shipping, European timber pricing, retail foot traffic, flat-pack logistics",
+            currency="USD"
+        )
     elif "levi" in c_lower:
         prof = settings.LEVIS_DEFAULT_PROFILE
     else:
@@ -405,14 +423,44 @@ def resolve_profile_by_company(company_name: Optional[str] = None) -> BusinessPr
     company_profiles_db[c_lower] = prof
     return prof
 
+def load_uploaded_summaries_for_company(company_name: Optional[str] = None):
+    comp_dir = get_company_upload_dir(company_name)
+    sales_sum = sales_summary_cache
+    inv_sum = inventory_summary_cache
+    fin_sum = financial_summary_cache
+
+    if comp_dir.exists():
+        for f in comp_dir.glob("*.csv"):
+            fname = f.name.lower()
+            try:
+                with open(f, "rb") as file_obj:
+                    contents = file_obj.read()
+                    df = AnalyticsEngine.parse_file(contents, f.name)
+                    if ("sales" in fname or "revenue" in fname or "order" in fname) and not sales_sum:
+                        val = AnalyticsEngine.validate_sales_data(df)
+                        sales_sum = val.get("summary", {})
+                        sales_sum["categories"] = val.get("categories", [])
+                        sales_sum["products"] = val.get("products", [])
+                    elif ("inv" in fname or "stock" in fname) and not inv_sum:
+                        val = AnalyticsEngine.validate_inventory_data(df)
+                        inv_sum = val
+                    elif ("fin" in fname or "cogs" in fname or "cost" in fname) and not fin_sum:
+                        val = AnalyticsEngine.validate_financial_data(df)
+                        fin_sum = val
+            except Exception as err:
+                print(f"Error parsing uploaded file {f.name}: {err}")
+
+    return sales_sum, inv_sum, fin_sum
+
 @router.get("/briefing/today")
 def get_today_briefing(company: Optional[str] = None):
     status = system_status()
     target_profile = resolve_profile_by_company(company)
+    sales_sum, inv_sum, _ = load_uploaded_summaries_for_company(company)
     briefing = briefing_engine.generate_today_briefing(
         profile=target_profile,
-        sales_summary=sales_summary_cache,
-        inventory_summary=inventory_summary_cache
+        sales_summary=sales_sum,
+        inventory_summary=inv_sum
     )
     briefing["data_source_mode"] = status["overall_mode"]
     briefing["api_status"] = status["api_diagnostics"]
@@ -427,10 +475,11 @@ def search_scenarios(q: str = "", company: Optional[str] = None):
 @router.get("/risk/analysis")
 def get_risk_analysis(company: Optional[str] = None):
     target_profile = resolve_profile_by_company(company)
+    sales_sum, inv_sum, _ = load_uploaded_summaries_for_company(company)
     briefing = briefing_engine.generate_today_briefing(
         profile=target_profile,
-        sales_summary=sales_summary_cache,
-        inventory_summary=inventory_summary_cache
+        sales_summary=sales_sum,
+        inventory_summary=inv_sum
     )
     return briefing["risk_analysis"]
 
@@ -440,11 +489,12 @@ def advisor_chat(payload: Dict[str, Any] = Body(...)):
     question = payload.get("question", "How could today's situation affect my business?")
     company_name = payload.get("company") or payload.get("business_name") or payload.get("name")
     target_profile = resolve_profile_by_company(company_name)
+    sales_sum, inv_sum, _ = load_uploaded_summaries_for_company(company_name)
 
     briefing = briefing_engine.generate_today_briefing(
         profile=target_profile,
-        sales_summary=sales_summary_cache,
-        inventory_summary=inventory_summary_cache
+        sales_summary=sales_sum,
+        inventory_summary=inv_sum
     )
     ans = advisor_engine.answer_question(
         user_question=question,
@@ -496,7 +546,8 @@ def synthesize_voice(payload: Dict[str, Any] = Body(...)):
 @router.get("/competitors/analysis")
 def get_competitor_analysis(company: Optional[str] = None):
     target_profile = resolve_profile_by_company(company)
-    return competitor_engine.get_analysis(target_profile)
+    sales_sum, inv_sum, _ = load_uploaded_summaries_for_company(company)
+    return competitor_engine.get_analysis(target_profile, sales_summary=sales_sum, inventory_summary=inv_sum)
 
 @router.post("/competitors/add")
 def add_competitor(payload: Dict[str, Any] = Body(...)):
