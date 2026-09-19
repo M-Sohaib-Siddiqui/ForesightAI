@@ -97,9 +97,26 @@ export default function OnboardingPage() {
     return { headers, rows };
   };
 
+  const uploadFileToBackend = async (file: File, endpoint: string, companyName: string) => {
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const formData = new FormData();
+      formData.append('file', file);
+      await fetch(`${apiBase}/api/import/${endpoint}`, {
+        method: 'POST',
+        body: formData,
+        headers: { company: companyName }
+      });
+    } catch (err) {
+      console.warn(`Could not upload ${file.name} to cloud storage endpoint:`, err);
+    }
+  };
+
   const handleSalesFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    uploadFileToBackend(file, 'sales', profile.name || 'default');
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -136,6 +153,8 @@ export default function OnboardingPage() {
   const handleInventoryFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    uploadFileToBackend(file, 'inventory', profile.name || 'default');
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -176,6 +195,8 @@ export default function OnboardingPage() {
   const handleFinancialFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    uploadFileToBackend(file, 'financials', profile.name || 'default');
 
     const reader = new FileReader();
     reader.onload = (evt) => {

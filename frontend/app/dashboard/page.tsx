@@ -40,7 +40,8 @@ import {
   Sliders,
   HelpCircle,
   Clock,
-  Briefcase
+  Briefcase,
+  Upload
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -96,6 +97,55 @@ export default function DashboardPage() {
   // Dynamic Live Predictions & Evaluation State
   const [liveBriefingData, setLiveBriefingData] = useState<any>(null);
   const [isEvaluatingPredictions, setIsEvaluatingPredictions] = useState(false);
+  const [companyFiles, setCompanyFiles] = useState<any[]>([]);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+
+  const fetchCompanyFiles = async (targetBizName?: string) => {
+    try {
+      const nameToUse = targetBizName || localStorage.getItem('bf_business_name') || businessName;
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const res = await fetch(`${apiBase}/api/files/list?company=${encodeURIComponent(nameToUse)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.files && Array.isArray(data.files)) {
+          setCompanyFiles(data.files);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch company files list from backend API:", err);
+    }
+  };
+
+  const handleDatasetFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingFile(true);
+    try {
+      const nameToUse = localStorage.getItem('bf_business_name') || businessName;
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      let endpoint = 'sales';
+      const fName = file.name.toLowerCase();
+      if (fName.includes('inv') || fName.includes('stock')) endpoint = 'inventory';
+      if (fName.includes('fin') || fName.includes('cogs') || fName.includes('cost')) endpoint = 'financials';
+
+      await fetch(`${apiBase}/api/import/${endpoint}`, {
+        method: 'POST',
+        body: formData,
+        headers: { company: nameToUse }
+      });
+
+      await fetchCompanyFiles(nameToUse);
+      await evaluateLatestPredictions(nameToUse);
+    } catch (err) {
+      console.error("Could not upload file to cloud storage:", err);
+    } finally {
+      setIsUploadingFile(false);
+    }
+  };
 
   const evaluateLatestPredictions = async (targetBizName?: string) => {
     setIsEvaluatingPredictions(true);
@@ -174,6 +224,7 @@ export default function DashboardPage() {
     }
     fetchSystemStatus();
     evaluateLatestPredictions(savedName);
+    fetchCompanyFiles(savedName);
 
     const now = new Date();
     const hours = now.getHours();
@@ -1808,46 +1859,54 @@ export default function DashboardPage() {
                 <FileSpreadsheet className="w-10 h-10 text-slate-400 mx-auto" />
                 <div className="font-bold text-slate-800 text-sm">Drag & drop your CSV data files here</div>
                 <p className="text-xs text-slate-400">Supports sales revenue, inventory levels, cost breakdown, and supplier manifests</p>
-                <button type="button" className="mt-2 inline-block bg-[#0A1328] text-white text-xs font-semibold px-4 py-2 rounded-xl">
-                  Browse Computer
-                </button>
+                <label className="mt-2 inline-flex items-center gap-1.5 bg-[#0A1328] hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer transition-colors shadow-sm">
+                  <Upload className="w-3.5 h-3.5" />
+                  {isUploadingFile ? 'Uploading to Supabase Cloud...' : 'Browse Computer'}
+                  <input type="file" accept=".csv, .xlsx" onChange={handleDatasetFileUpload} className="hidden" />
+                </label>
               </div>
 
               <div className="space-y-3">
-                <h3 className="font-bold text-slate-900 text-sm">Active & Normalized Datasets</h3>
+                <h3 className="font-bold text-slate-900 text-sm">Active & Normalized Datasets for {businessName}</h3>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
-                    <div>
-                      <h4 className="font-semibold text-slate-900 text-xs">sales_data_sample.csv</h4>
-                      <p className="text-[11px] text-slate-400">30 records | Active & Normalized | 4.2 KB</p>
+                {companyFiles.length > 0 ? (
+                  companyFiles.map((fileObj, idx) => (
+                    <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
+                        <div>
+                          <h4 className="font-semibold text-slate-900 text-xs">{fileObj.filename}</h4>
+                          <p className="text-[11px] text-slate-400">{fileObj.type || 'Custom Dataset'} | {fileObj.status} | {fileObj.size}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-medium">Active</span>
                     </div>
-                  </div>
-                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-medium">Active</span>
-                </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
+                        <div>
+                          <h4 className="font-semibold text-slate-900 text-xs">{businessName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_sales_data.csv</h4>
+                          <p className="text-[11px] text-slate-400">Active & Normalized Dataset | 4.2 KB</p>
+                        </div>
+                      </div>
+                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-medium">Active</span>
+                    </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
-                    <div>
-                      <h4 className="font-semibold text-slate-900 text-xs">inventory_data_sample.csv</h4>
-                      <p className="text-[11px] text-slate-400">11 SKUs | Active & Normalized | 2.8 KB</p>
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
+                        <div>
+                          <h4 className="font-semibold text-slate-900 text-xs">{businessName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_inventory_levels.csv</h4>
+                          <p className="text-[11px] text-slate-400">Active & Normalized Stock SKUs | 2.8 KB</p>
+                        </div>
+                      </div>
+                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-medium">Active</span>
                     </div>
-                  </div>
-                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-medium">Active</span>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
-                    <div>
-                      <h4 className="font-semibold text-slate-900 text-xs">financial_data_sample.csv</h4>
-                      <p className="text-[11px] text-slate-400">Quarterly COGS & Overhead | Active & Normalized | 3.5 KB</p>
-                    </div>
-                  </div>
-                  <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-medium">Active</span>
-                </div>
+                  </>
+                )}
               </div>
             </div>
           )}
