@@ -69,6 +69,57 @@ class DailyBriefingEngine:
                     ]
                 }
             ]
+        elif any(k in profile.name.lower() or k in profile.industry.lower() for k in ["ikea", "furniture", "furnishing", "home decor", "shelving"]):
+            developments = [
+                {
+                    "id": "dev-001",
+                    "title": "Global Particleboard & Timber Spot Price Surge (+16%)",
+                    "category": "Raw Materials & Commodities",
+                    "what_happened": "Tightened timber harvest quotas across Eastern European and North American forestry hubs have driven particleboard & timber input prices up 16% in 30 days.",
+                    "why_it_matters": f"{profile.name} relies on wood fiber & particleboard inputs for flat-pack core lines (BILLY, KALLAX, MALM). Input cost inflation threatens gross margin stability.",
+                    "short_term_impact": "Higher wood panel & flat-pack manufacturing quotes for upcoming Q3/Q4 production runs.",
+                    "medium_term_impact": "COGS inflation across European & Asian assembly plants compressing gross margins by 240-360 basis points.",
+                    "risk_level": "High",
+                    "evidence_source": "Global Timber Index & Forest Products Commodity Report",
+                    "confidence_uncertainty": "High Confidence (92%) on timber cost rise; Moderate Uncertainty on Q4 energy subsidies for European paper mills.",
+                    "recommended_actions": [
+                        "Lock in 6-month raw timber & particleboard pricing agreements with primary European suppliers.",
+                        "Protect flat-pack entry pricing on core BILLY bookcases while evaluating minor price adjustments on luxury dressers."
+                    ]
+                },
+                {
+                    "id": "dev-002",
+                    "title": "Port of Rotterdam & Hamburg Container Logistics Congestion",
+                    "category": "Supply Chain & Logistics",
+                    "what_happened": "Ocean container congestion and feeder vessel rescheduling at major European distribution ports (Rotterdam & Hamburg) have delayed flat-pack furniture shipments.",
+                    "why_it_matters": f"Inbound flat-pack container arrivals at {profile.name} distribution centers (Dortmund & Chicago) are delayed by 12-14 days, risking stockouts for high-margin bed frames & storage.",
+                    "short_term_impact": "12-14 days transit lead time extension for MALM bed frames, KALLAX units, and HEMNES dressers.",
+                    "medium_term_impact": "Inbound ocean freight surcharges of $650-$1,100 per 40ft container.",
+                    "risk_level": "Medium",
+                    "evidence_source": "Rotterdam Port Authority Dispatch & S&P Maritime Logistics Alert",
+                    "confidence_uncertainty": "High Confidence (89%) on lead time extension; Low Uncertainty on warehouse safety stock buffers.",
+                    "recommended_actions": [
+                        "Extend warehouse safety stock replenishment buffers from 18 days to 30 days.",
+                        "Prioritize fast-track rail freight for high-velocity KALLAX & BILLY SKUs."
+                    ]
+                },
+                {
+                    "id": "dev-003",
+                    "title": "Global Home Organization & Furniture Demand Acceleration",
+                    "category": "Market & Consumer Demand",
+                    "what_happened": "Retail trade data across North America and Europe shows high consumer purchasing velocity for space-saving modular furniture and home storage.",
+                    "why_it_matters": f"{profile.name}'s market dominance in flat-pack self-assembly furniture positions it favorably against traditional high-markup furniture retailers.",
+                    "short_term_impact": "Increased demand velocity (+19%) for BILLY bookcases, KALLAX shelving, and POÄNG seating.",
+                    "medium_term_impact": "Market share expansion opportunities against online-only drop-shippers.",
+                    "risk_level": "Opportunity / Low Risk",
+                    "evidence_source": "Global Home Furnishings Retail Trade Report",
+                    "confidence_uncertainty": "High Confidence (90%) based on 60-day retail store foot traffic and web order velocity.",
+                    "recommended_actions": [
+                        "Ensure high floor-stock replenishment for core BILLY and KALLAX SKUs in primary stores.",
+                        "Reallocate digital marketing budget to highlight self-assembly value and flat-pack convenience."
+                    ]
+                }
+            ]
         elif "levi" in profile.name.lower():
             developments = [
                 {
