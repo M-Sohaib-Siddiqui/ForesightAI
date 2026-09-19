@@ -335,15 +335,25 @@ def list_company_files(company: Optional[str] = None):
 
     return {"company": company or "Default", "files": saved_files}
 
+company_profiles_db: Dict[str, BusinessProfile] = {}
+
 def resolve_profile_by_company(company_name: Optional[str] = None) -> BusinessProfile:
     if not company_name or not company_name.strip():
         return current_profile
-    c_lower = company_name.strip().lower()
+    c_clean = company_name.strip()
+    c_lower = c_clean.lower()
+
+    if c_lower in company_profiles_db:
+        return company_profiles_db[c_lower]
+
+    if current_profile and current_profile.name.strip().lower() == c_lower:
+        return current_profile
+
     if any(k in c_lower for k in ["nagina", "bedding", "textile", "home", "pk"]):
-        return BusinessProfile(
+        prof = BusinessProfile(
             id="biz-nagina-001",
-            name=company_name,
-            legal_name="Nagina Bedding Store",
+            name=c_clean,
+            legal_name=f"{c_clean} Store",
             industry="Home Textiles & Bedding Retail",
             business_type="Brick-and-Mortar Retail Store Network",
             business_model="Retailer & Fabric Assembler",
@@ -358,25 +368,28 @@ def resolve_profile_by_company(company_name: Optional[str] = None) -> BusinessPr
             currency="PKR"
         )
     elif "levi" in c_lower:
-        return settings.LEVIS_DEFAULT_PROFILE
+        prof = settings.LEVIS_DEFAULT_PROFILE
     else:
-        return BusinessProfile(
+        prof = BusinessProfile(
             id=f"biz-custom-{int(time.time())}",
-            name=company_name,
-            legal_name=company_name,
-            industry="General Commerce",
-            business_type="Omnichannel Retail",
-            business_model="Retailer & Distributor",
+            name=c_clean,
+            legal_name=f"{c_clean} Ltd.",
+            industry="General Commerce & Retail",
+            business_type="Omnichannel Business",
+            business_model="Brand Manufacturer & Retailer",
             primary_market="Global Market",
-            target_customers="Retail Consumers",
-            categories=["Products", "Goods"],
-            sales_channels=["Direct", "Retail", "Online"],
-            suppliers=["Regional Suppliers"],
-            supplier_countries=["Domestic", "Overseas"],
-            import_dependency="Moderate",
-            operating_dependencies="Supply chain, raw material pricing",
+            target_customers="Retail & Commercial Customers",
+            categories=["Core Line Products", "Specialty Goods"],
+            sales_channels=["Official Website", "Retail Stores", "Wholesale Partners"],
+            suppliers=["Primary Regional Vendors", "Overseas Suppliers"],
+            supplier_countries=["Domestic", "Overseas Sourcing"],
+            import_dependency="Moderate (40-60% overseas sourcing)",
+            operating_dependencies="Supply chain logistics, raw material pricing, freight costs",
             currency="USD"
         )
+    
+    company_profiles_db[c_lower] = prof
+    return prof
 
 @router.get("/briefing/today")
 def get_today_briefing(company: Optional[str] = None):

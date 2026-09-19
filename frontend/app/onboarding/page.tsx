@@ -244,7 +244,41 @@ export default function OnboardingPage() {
     });
   };
 
-  const handleCompleteOnboarding = () => {
+  const handleCompleteOnboarding = async () => {
+    try {
+      const bizName = profile.name.trim() || 'My Business';
+      localStorage.setItem('bf_business_name', bizName);
+
+      const formattedProfile = {
+        id: `biz-${bizName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+        name: bizName,
+        legal_name: profile.legal_name || bizName,
+        industry: profile.industry || 'General Commerce & Retail',
+        business_type: profile.business_type || 'Omnichannel Business',
+        business_model: profile.business_model || 'Brand Manufacturer & Retailer',
+        primary_market: profile.primary_market || 'Global Market',
+        target_customers: profile.target_customers || 'Retail Consumers',
+        categories: profile.categories ? profile.categories.split(',').map(s => s.trim()) : ['Core Products'],
+        sales_channels: profile.sales_channels ? profile.sales_channels.split(',').map(s => s.trim()) : ['Direct', 'Retail', 'Online'],
+        suppliers: profile.suppliers ? profile.suppliers.split(',').map(s => s.trim()) : ['Regional Vendors'],
+        supplier_countries: profile.supplier_countries ? profile.supplier_countries.split(',').map(s => s.trim()) : ['Domestic', 'Overseas'],
+        import_dependency: profile.import_dependency || 'Moderate',
+        operating_dependencies: profile.operating_dependencies || 'Supply chain logistics',
+        currency: profile.currency || 'USD'
+      };
+
+      localStorage.setItem('bf_business_profile', JSON.stringify(formattedProfile));
+
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      await fetch(`${apiBase}/api/profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formattedProfile)
+      });
+    } catch (err) {
+      console.warn("Could not post custom profile to backend during onboarding:", err);
+    }
+
     window.location.href = '/dashboard';
   };
 
