@@ -144,6 +144,7 @@ export default function DashboardPage() {
       console.error("Could not upload file to cloud storage:", err);
     } finally {
       setIsUploadingFile(false);
+      e.target.value = '';
     }
   };
 

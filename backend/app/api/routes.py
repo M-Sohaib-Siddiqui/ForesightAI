@@ -214,14 +214,28 @@ async def save_uploaded_file(file_name: str, contents: bytes, company_name: Opti
     if supabase_client:
         try:
             cloud_path = f"{slug}/{file_name}"
-            supabase_client.storage.from_("business-datasets").upload(
-                path=cloud_path,
-                file=contents,
-                file_options={"upsert": "true"}
-            )
+            try:
+                supabase_client.storage.from_("business-datasets").upload(
+                    path=cloud_path,
+                    file=contents,
+                    file_options={"upsert": "true"}
+                )
+            except Exception:
+                try:
+                    supabase_client.storage.from_("business-datasets").upload(
+                        path=cloud_path,
+                        file=contents,
+                        file_options={"upsert": True}
+                    )
+                except Exception:
+                    supabase_client.storage.from_("business-datasets").update(
+                        path=cloud_path,
+                        file=contents
+                    )
             cloud_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/business-datasets/{cloud_path}"
+            print(f"Successfully uploaded {cloud_path} to Supabase bucket 'business-datasets'")
         except Exception as e:
-            print(f"Supabase Cloud Storage Upload warning: {e}")
+            print(f"Supabase Cloud Storage Upload warning for {file_name}: {e}")
 
     return {"local_path": str(local_path), "cloud_url": cloud_url}
 

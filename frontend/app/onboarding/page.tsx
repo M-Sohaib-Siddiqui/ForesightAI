@@ -148,6 +148,7 @@ export default function OnboardingPage() {
       });
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleInventoryFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,6 +191,7 @@ export default function OnboardingPage() {
       });
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleFinancialFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,6 +230,7 @@ export default function OnboardingPage() {
       });
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleSimulateSalesUpload = async () => {
