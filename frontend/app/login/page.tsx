@@ -25,7 +25,16 @@ export default function LoginPage() {
 
     try {
       localStorage.setItem('bf_user_email', email);
-      localStorage.setItem('bf_auth_token', 'jwt-token-demo-001');
+      if (email.toLowerCase() === 'demo@levis.com') {
+        localStorage.setItem('bf_business_name', "Levi's");
+      } else if (email.toLowerCase().includes('sohsid29') || email.toLowerCase().includes('nagina')) {
+        localStorage.setItem('bf_business_name', 'Nagina Business');
+      } else {
+        const handle = email.split('@')[0];
+        const defaultName = handle ? handle.charAt(0).toUpperCase() + handle.slice(1) + ' Business' : 'My Business';
+        localStorage.setItem('bf_business_name', defaultName);
+      }
+      localStorage.setItem('bf_auth_token', `jwt-token-${Date.now()}`);
     } catch (err) {
       console.error(err);
     }

@@ -157,6 +157,15 @@ export default function DashboardPage() {
     const email = localStorage.getItem('bf_user_email');
     if (email) {
       setUserEmail(email);
+      if (email.toLowerCase() !== 'demo@levis.com') {
+        if (email.toLowerCase().includes('sohsid29') || email.toLowerCase().includes('nagina')) {
+          savedName = 'Nagina Business';
+        } else if (!savedName || savedName === "Levi's") {
+          const handle = email.split('@')[0];
+          savedName = handle ? handle.charAt(0).toUpperCase() + handle.slice(1) + ' Business' : 'My Business';
+        }
+        localStorage.setItem('bf_business_name', savedName);
+      }
     }
     if (savedName && savedName.trim()) {
       setBusinessName(savedName);
