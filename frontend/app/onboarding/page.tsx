@@ -100,12 +100,13 @@ export default function OnboardingPage() {
   const uploadFileToBackend = async (file: File, endpoint: string, companyName: string) => {
     try {
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const bizName = companyName || localStorage.getItem('bf_business_name') || 'my_business';
       const formData = new FormData();
       formData.append('file', file);
       await fetch(`${apiBase}/api/import/${endpoint}`, {
         method: 'POST',
         body: formData,
-        headers: { company: companyName }
+        headers: { company: bizName }
       });
     } catch (err) {
       console.warn(`Could not upload ${file.name} to cloud storage endpoint:`, err);

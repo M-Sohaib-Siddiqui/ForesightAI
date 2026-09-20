@@ -338,10 +338,6 @@ def logout(authorization: Optional[str] = Header(None)):
     return {"status": "success", "message": "Logged out successfully."}
 
 # --- SYSTEM & BUSINESS ENDPOINTS ---
-@router.get("/health")
-def health_check():
-    return {"status": "ok", "service": "Business Foresight API", "version": settings.VERSION}
-
 @router.get("/profile")
 def get_profile():
     return current_profile
@@ -351,6 +347,23 @@ def update_profile(profile_data: Dict[str, Any]):
     global current_profile
     try:
         current_profile = BusinessProfile(**profile_data)
+        
+        if supabase_client:
+            try:
+                prof_dict = profile_data.copy()
+                for key in ["categories", "sales_channels", "suppliers", "supplier_countries"]:
+                    if isinstance(prof_dict.get(key), list):
+                        prof_dict[key] = ", ".join(prof_dict[key])
+                
+                b_id = prof_dict.get("id")
+                if not b_id or len(str(b_id)) < 10 or not (len(str(b_id)) == 36 and str(b_id).count("-") == 4):
+                    prof_dict["id"] = f"00000000-0000-0000-0000-{int(time.time()):012d}"
+
+                supabase_client.table("business_profiles").upsert(prof_dict).execute()
+                print(f"Persisted profile '{prof_dict.get('name')}' to Supabase 'business_profiles' table.")
+            except Exception as e:
+                print(f"Supabase DB business_profiles persist notice: {e}")
+
         return {"status": "success", "profile": current_profile}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -373,18 +386,24 @@ def get_company_upload_dir(company_name: Optional[str] = None) -> Path:
     return upload_dir
 
 async def save_uploaded_file(file_name: str, contents: bytes, company_name: Optional[str] = None):
-    slug = "".join(c if c.isalnum() else "_" for c in (company_name or "default").strip().lower())
+    raw_name = company_name.strip() if company_name else "default"
+    slug = "".join(c if c.isalnum() else "_" for c in raw_name.lower())
+    if not slug:
+        slug = "default"
     
-    # 1. Save to local disk directory (ensures offline development support)
     comp_dir = get_company_upload_dir(company_name)
     local_path = comp_dir / file_name
     with open(local_path, "wb") as f:
         f.write(contents)
 
-    # 2. Upload to Supabase Cloud Storage Bucket ('business-datasets') if Supabase is connected
     cloud_url = None
     if supabase_client:
         try:
+            try:
+                supabase_client.storage.create_bucket("business-datasets", options={"public": True})
+            except Exception:
+                pass
+
             cloud_path = f"{slug}/{file_name}"
             try:
                 supabase_client.storage.from_("business-datasets").upload(
@@ -420,6 +439,32 @@ async def import_sales(file: UploadFile = File(...), company: Optional[str] = He
     df = AnalyticsEngine.parse_file(contents, file.filename)
     validation = AnalyticsEngine.validate_sales_data(df)
     sales_summary_cache = validation["summary"]
+
+    if supabase_client and df is not None and not df.empty:
+        try:
+            records = []
+            for _, row in df.iterrows():
+                rev = float(row.get('Revenue (USD)', row.get('Revenue (PKR)', row.get('Revenue', 0))) or 0)
+                units = int(row.get('Units Sold', row.get('Units', row.get('Quantity', 1))) or 1)
+                prod_name = str(row.get('Product Name', row.get('Product', 'Item')))
+                cat = str(row.get('Category', row.get('Product Category', 'General')))
+                s_date = str(row.get('Date', row.get('Sale Date', time.strftime('%Y-%m-%d'))))
+                
+                records.append({
+                    "sale_date": s_date if len(s_date) == 10 else time.strftime('%Y-%m-%d'),
+                    "product_category": cat,
+                    "product_name": prod_name,
+                    "units_sold": units,
+                    "revenue_usd": rev,
+                    "sales_channel": str(row.get('Sales Channel', 'Direct')),
+                    "region": str(row.get('Region', 'Global'))
+                })
+            if records:
+                supabase_client.table("sales_records").insert(records[:100]).execute()
+                print(f"Persisted {len(records[:100])} rows into Supabase 'sales_records' table.")
+        except Exception as e:
+            print(f"Supabase DB sales_records insert notice: {e}")
+
     return {
         "filename": file.filename,
         "saved_path": storage_res["local_path"],
@@ -437,6 +482,42 @@ async def import_inventory(file: UploadFile = File(...), company: Optional[str] 
     df = AnalyticsEngine.parse_file(contents, file.filename)
     validation = AnalyticsEngine.validate_inventory_data(df)
     inventory_summary_cache = validation
+
+    if supabase_client and df is not None and not df.empty:
+        try:
+            records = []
+            for idx, row in df.iterrows():
+                sku_val = str(row.get('SKU', f"SKU-{idx+1}"))
+                prod_name = str(row.get('Product Name', row.get('Product', 'Item')))
+                cat = str(row.get('Category', row.get('Product Category', 'General')))
+                curr_stock = int(row.get('Current Stock Units', row.get('Stock', 0)) or 0)
+                safe_stock = int(row.get('Safety Stock Units', row.get('Safety Stock', 0)) or 0)
+                reorder_pt = int(row.get('Reorder Point Units', safe_stock) or 0)
+                unit_cost = float(row.get('Unit Cost (USD)', row.get('Unit Cost (PKR)', row.get('Unit Cost', 0))) or 0)
+                supplier = str(row.get('Supplier Name', row.get('Supplier', 'Vendor')))
+                country = str(row.get('Supplier Country', 'Global'))
+                lead = int(row.get('Lead Time Days', row.get('Lead Time', 14)) or 14)
+                status = "Low Stock" if curr_stock < safe_stock else "Optimal"
+
+                records.append({
+                    "sku": sku_val,
+                    "product_category": cat,
+                    "product_name": prod_name,
+                    "current_stock_units": curr_stock,
+                    "safety_stock_units": safe_stock,
+                    "reorder_point_units": reorder_pt,
+                    "unit_cost_usd": unit_cost,
+                    "supplier_name": supplier,
+                    "supplier_country": country,
+                    "lead_time_days": lead,
+                    "stock_status": status
+                })
+            if records:
+                supabase_client.table("inventory_records").insert(records[:100]).execute()
+                print(f"Persisted {len(records[:100])} rows into Supabase 'inventory_records' table.")
+        except Exception as e:
+            print(f"Supabase DB inventory_records insert notice: {e}")
+
     return {
         "filename": file.filename,
         "saved_path": storage_res["local_path"],
