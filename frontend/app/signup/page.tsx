@@ -220,15 +220,15 @@ export default function SignUpPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5 text-center">Enter 6-Digit Security Code</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 text-center">Enter Security Verification Code</label>
                 <input
                   type="text"
-                  maxLength={6}
+                  maxLength={8}
                   required
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full text-center tracking-[0.5em] font-mono text-lg font-bold border border-slate-300 rounded-xl p-3 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#2563EB]"
-                  placeholder="000000"
+                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9a-zA-Z]/g, ''))}
+                  className="w-full text-center tracking-[0.4em] font-mono text-lg font-bold border border-slate-300 rounded-xl p-3 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#2563EB]"
+                  placeholder="Enter code"
                 />
               </div>
 
