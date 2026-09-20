@@ -121,7 +121,12 @@ def signup(payload: Dict[str, Any] = Body(...)):
 
     if supabase_client:
         try:
-            supabase_client.auth.sign_in_with_otp({"email": email})
+            supabase_client.auth.sign_in_with_otp({
+                "email": email,
+                "options": {
+                    "email_redirect_to": "https://foresight-ai-app.vercel.app/signup"
+                }
+            })
         except Exception as e:
             print(f"Supabase Auth OTP send notice: {e}")
 
@@ -129,8 +134,7 @@ def signup(payload: Dict[str, Any] = Body(...)):
         "status": "otp_sent",
         "email": email,
         "message": f"Verification code sent to {email}. Please enter the 6-digit code to complete registration.",
-        "expires_in_seconds": 600,
-        "demo_code": otp_code
+        "expires_in_seconds": 600
     }
 
 @router.post("/auth/verify-otp")
@@ -218,8 +222,7 @@ def resend_otp(payload: Dict[str, Any] = Body(...)):
         "status": "otp_sent",
         "email": email,
         "message": f"New verification code sent to {email}.",
-        "expires_in_seconds": 600,
-        "demo_code": new_code
+        "expires_in_seconds": 600
     }
 
 @router.post("/auth/login")

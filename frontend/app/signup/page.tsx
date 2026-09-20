@@ -12,7 +12,6 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
-  const [demoCodeHint, setDemoCodeHint] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -49,23 +48,16 @@ export default function SignUpPage() {
       }
 
       if (data.status === 'otp_sent') {
-        if (data.demo_code) setDemoCodeHint(data.demo_code);
-        setSuccessMsg(data.message || `Verification code sent to ${email}`);
+        setSuccessMsg(data.message || `Verification code sent to ${email}. Please check your email inbox.`);
         setStep('verify');
       } else if (data.access_token) {
-        // Direct signup if OTP bypassed
         localStorage.setItem('bf_user_email', email);
         if (businessName.trim()) localStorage.setItem('bf_business_name', businessName);
         localStorage.setItem('bf_auth_token', data.access_token);
         window.location.href = '/onboarding';
       }
     } catch (err: any) {
-      console.warn("Backend signup API warning, using local fallback mode:", err);
-      // Offline fallback verification code
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      setDemoCodeHint(code);
-      setSuccessMsg(`Verification code sent to ${email}`);
-      setStep('verify');
+      setErrorMsg(err.message || 'Could not send verification email. Please check your connection.');
     } finally {
       setLoading(false);
     }
@@ -106,20 +98,15 @@ export default function SignUpPage() {
       
       window.location.href = '/onboarding';
     } catch (err: any) {
-      if (demoCodeHint && otpCode.trim() === demoCodeHint) {
-        localStorage.setItem('bf_user_email', email);
-        if (businessName.trim()) localStorage.setItem('bf_business_name', businessName);
-        localStorage.setItem('bf_auth_token', `jwt-token-${Date.now()}`);
-        window.location.href = '/onboarding';
-      } else {
-        setErrorMsg(err.message || 'Invalid 6-digit verification code. Please try again.');
-        setLoading(false);
-      }
+      setErrorMsg(err.message || 'Invalid 6-digit verification code. Please check your email and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleResendOTP = async () => {
     setErrorMsg('');
+    setSuccessMsg('');
     setLoading(true);
     try {
       const res = await fetch(`${apiBase}/api/auth/resend-otp`, {
@@ -128,14 +115,12 @@ export default function SignUpPage() {
         body: JSON.stringify({ email: email.trim() })
       });
       const data = await res.json();
-      if (res.ok && data.demo_code) {
-        setDemoCodeHint(data.demo_code);
+      if (!res.ok) {
+        throw new Error(data.detail || 'Could not resend verification code.');
       }
       setSuccessMsg('A new 6-digit verification code has been sent to your email.');
-    } catch (err) {
-      const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-      setDemoCodeHint(newCode);
-      setSuccessMsg('New verification code sent.');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Could not resend verification code.');
     } finally {
       setLoading(false);
     }
@@ -228,19 +213,14 @@ export default function SignUpPage() {
             </form>
           ) : (
             <form onSubmit={handleVerifyOTP} action="#" className="space-y-5">
-              <div className="text-center p-3 bg-blue-50/60 border border-blue-100 rounded-xl mb-3">
+              <div className="text-center p-4 bg-blue-50/60 border border-blue-100 rounded-xl mb-3">
                 <KeyRound className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                <h3 className="font-bold text-xs text-slate-900">Email Verification Code Required</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">Please check <strong>{email}</strong> for your 6-digit security OTP code.</p>
-                {demoCodeHint && (
-                  <div className="mt-2 text-xs bg-white border border-blue-200 rounded p-1.5 text-blue-700 font-mono font-bold">
-                    Verification Code: {demoCodeHint}
-                  </div>
-                )}
+                <h3 className="font-bold text-xs text-slate-900">Check Your Email Inbox</h3>
+                <p className="text-[11px] text-slate-500 mt-1">We sent a 6-digit security verification code to <strong>{email}</strong>.</p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5 text-center">6-Digit Security Code</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 text-center">Enter 6-Digit Security Code</label>
                 <input
                   type="text"
                   maxLength={6}
