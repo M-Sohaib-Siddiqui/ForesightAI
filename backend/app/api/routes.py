@@ -151,6 +151,16 @@ def signup(payload: Dict[str, Any] = Body(...)):
 
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password are required.")
+
+    # Check authoritative Supabase database to see if user was deleted
+    if supabase_client:
+        try:
+            res = supabase_client.table("users").select("id").eq("email", email).execute()
+            if not res.data:
+                users_db.pop(email, None)
+        except Exception as e:
+            print(f"Supabase DB user check notice: {e}")
+
     if email in users_db:
         raise HTTPException(status_code=400, detail="An account with this email already exists.")
 
