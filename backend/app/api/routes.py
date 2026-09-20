@@ -4,7 +4,6 @@ from fastapi.responses import Response
 from typing import Dict, Any, Optional
 import hashlib
 import time
-import random
 import requests
 from app.core.config import settings, BusinessProfile, DATA_DIR
 from app.services.analytics_engine import AnalyticsEngine
@@ -21,7 +20,6 @@ current_profile: BusinessProfile = settings.LEVIS_DEFAULT_PROFILE
 sales_summary_cache: Optional[Dict[str, Any]] = None
 inventory_summary_cache: Optional[Dict[str, Any]] = None
 financial_summary_cache: Optional[Dict[str, Any]] = None
-pending_otps: Dict[str, Dict[str, Any]] = {}
 
 users_db: Dict[str, Dict[str, Any]] = {
     "demo@levis.com": {
@@ -95,47 +93,6 @@ def system_status():
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-def send_otp_email(to_email: str, code: str) -> bool:
-    smtp_user = os.getenv("SMTP_USER", "")
-    smtp_pass = os.getenv("SMTP_PASSWORD", "")
-    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", 587))
-    
-    if not smtp_user or not smtp_pass:
-        return False
-
-    try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Your ForesightAI Verification Code: {code}"
-        msg["From"] = f"ForesightAI Security <{smtp_user}>"
-        msg["To"] = to_email
-
-        html_body = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; margin: 0 auto;">
-            <h2 style="color: #0A1328; margin-bottom: 8px;">ForesightAI Account Verification</h2>
-            <p style="color: #64748b; font-size: 14px;">Your 6-digit security verification code is:</p>
-            <div style="background-color: #f1f5f9; border: 1px solid #cbd5e1; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #2563EB; text-align: center; padding: 16px; margin: 16px 0; border-radius: 12px;">
-                {code}
-            </div>
-            <p style="color: #94a3b8; font-size: 12px;">This code is valid for 10 minutes. Enter this code on the registration screen to activate your business account.</p>
-        </div>
-        """
-        msg.attach(MIMEText(html_body, "html"))
-
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_user, smtp_pass)
-            server.sendmail(smtp_user, to_email, msg.as_string())
-        print(f"Direct SMTP email sent to {to_email} with code {code}")
-        return True
-    except Exception as e:
-        print(f"Direct SMTP email send notice: {e}")
-        return False
-
 # --- AUTHENTICATION ENDPOINTS ---
 @router.post("/auth/signup")
 def signup(payload: Dict[str, Any] = Body(...)):
@@ -148,71 +105,14 @@ def signup(payload: Dict[str, Any] = Body(...)):
     if email in users_db:
         raise HTTPException(status_code=400, detail="An account with this email already exists.")
 
-    otp_code = f"{random.randint(100000, 999999)}"
-    expires_at = time.time() + 600  # Valid for 10 minutes
-
-    pending_otps[email] = {
-        "code": otp_code,
-        "password_hash": hashlib.sha256(password.encode()).hexdigest(),
-        "business_name": business_name,
-        "expires_at": expires_at
-    }
-
-    print(f"=== EMAIL OTP VERIFICATION CODE FOR {email} ===> [{otp_code}] (Valid for 10 min)")
-
-    # 1. Attempt direct SMTP email dispatch if SMTP credentials are provided
-    email_sent = send_otp_email(email, otp_code)
-
-    # 2. Trigger Supabase Auth OTP email as fallback
-    if supabase_client and not email_sent:
-        try:
-            supabase_client.auth.sign_in_with_otp({
-                "email": email,
-                "options": {
-                    "email_redirect_to": "https://foresight-ai-app.vercel.app/signup"
-                }
-            })
-        except Exception as e:
-            print(f"Supabase Auth OTP send notice: {e}")
-
-    return {
-        "status": "otp_sent",
-        "email": email,
-        "message": f"Verification code sent to {email}. Please enter the 6-digit code to complete registration.",
-        "expires_in_seconds": 600
-    }
-
-@router.post("/auth/verify-otp")
-def verify_otp(payload: Dict[str, Any] = Body(...)):
-    email = payload.get("email", "").strip().lower()
-    code = payload.get("code", "").strip()
-
-    if not email or not code:
-        raise HTTPException(status_code=400, detail="Email and 6-digit verification code are required.")
-
-    pending = pending_otps.get(email)
-    if not pending:
-        raise HTTPException(status_code=400, detail="No pending verification found for this email. Please request a new code.")
-
-    if time.time() > pending["expires_at"]:
-        pending_otps.pop(email, None)
-        raise HTTPException(status_code=400, detail="Verification code has expired. Please request a new code.")
-
-    if pending["code"] != code:
-        raise HTTPException(status_code=400, detail="Invalid 6-digit verification code. Please check your email and try again.")
-
     user_id = f"usr-{int(time.time())}"
-    business_name = pending["business_name"]
     users_db[email] = {
         "id": user_id,
         "email": email,
-        "password_hash": pending["password_hash"],
-        "business_name": business_name,
+        "password_hash": hashlib.sha256(password.encode()).hexdigest(),
         "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
-
-    pending_otps.pop(email, None)
-
+    
     # Persist user account & profile to Supabase database tables ('business_profiles' and 'users')
     if supabase_client:
         try:
@@ -245,29 +145,6 @@ def verify_otp(payload: Dict[str, Any] = Body(...)):
         "access_token": token,
         "token_type": "bearer",
         "user": {"id": user_id, "email": email, "business_name": business_name}
-    }
-
-@router.post("/auth/resend-otp")
-def resend_otp(payload: Dict[str, Any] = Body(...)):
-    email = payload.get("email", "").strip().lower()
-    if not email:
-        raise HTTPException(status_code=400, detail="Email is required.")
-
-    pending = pending_otps.get(email)
-    if not pending:
-        raise HTTPException(status_code=400, detail="No registration pending for this email.")
-
-    new_code = f"{random.randint(100000, 999999)}"
-    pending["code"] = new_code
-    pending["expires_at"] = time.time() + 600
-
-    print(f"=== RESENT EMAIL OTP CODE FOR {email} ===> [{new_code}]")
-
-    return {
-        "status": "otp_sent",
-        "email": email,
-        "message": f"New verification code sent to {email}.",
-        "expires_in_seconds": 600
     }
 
 @router.post("/auth/login")
