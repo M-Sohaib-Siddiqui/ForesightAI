@@ -113,8 +113,19 @@ def signup(payload: Dict[str, Any] = Body(...)):
         "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    # Persist user account directly to Supabase PostgreSQL database table 'users'
+    # Persist user account & profile to Supabase database tables ('business_profiles' and 'users')
     if supabase_client:
+        try:
+            supabase_client.table("business_profiles").upsert({
+                "id": user_id,
+                "name": business_name,
+                "legal_name": business_name,
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
+            }).execute()
+            print(f"Persisted business profile for {business_name} in Supabase 'business_profiles' table")
+        except Exception as e:
+            print(f"Supabase DB business_profiles persist notice: {e}")
+
         try:
             supabase_client.table("users").upsert({
                 "id": user_id,
@@ -122,9 +133,9 @@ def signup(payload: Dict[str, Any] = Body(...)):
                 "business_name": business_name,
                 "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
             }).execute()
-            print(f"Successfully persisted user account {email} to Supabase 'users' table")
+            print(f"Persisted user account {email} in Supabase 'users' table")
         except Exception as e:
-            print(f"Supabase DB user account persist notice: {e}")
+            print(f"Supabase DB users persist notice: {e}")
 
     token = f"jwt-token-{user_id}"
     active_tokens[token] = email
