@@ -71,9 +71,19 @@ export default function DashboardPage() {
     news_extraction: { provider: "SerpApi Google News Feed", status: "active_live", message: "Connected to SerpApi Google News Feed.", has_key: true }
   });
 
+  const getApiBase = () => {
+    if (process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE_URL.includes('localhost')) {
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return 'https://foresightai-j8a2.onrender.com';
+    }
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  };
+
   const fetchSystemStatus = async () => {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const apiBase = getApiBase();
       const res = await fetch(`${apiBase}/api/system/status`);
       if (res.ok) {
         const data = await res.json();
@@ -103,7 +113,7 @@ export default function DashboardPage() {
   const fetchCompanyFiles = async (targetBizName?: string) => {
     try {
       const nameToUse = targetBizName || localStorage.getItem('bf_business_name') || businessName;
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const apiBase = getApiBase();
       const res = await fetch(`${apiBase}/api/files/list?company=${encodeURIComponent(nameToUse)}`);
       if (res.ok) {
         const data = await res.json();
@@ -123,7 +133,7 @@ export default function DashboardPage() {
     setIsUploadingFile(true);
     try {
       const nameToUse = localStorage.getItem('bf_business_name') || businessName;
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const apiBase = getApiBase();
       const formData = new FormData();
       formData.append('file', file);
       
@@ -154,7 +164,7 @@ export default function DashboardPage() {
     const isNaginaBiz = nameToUse.toLowerCase().includes('nagina') || 
                         nameToUse.toLowerCase().includes('bedding') || 
                         nameToUse.toLowerCase().includes('textile');
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    const apiBase = getApiBase();
     try {
       const briefingRes = await fetch(`${apiBase}/api/briefing/today?company=${encodeURIComponent(nameToUse)}`);
       if (briefingRes.ok) {
@@ -437,7 +447,7 @@ export default function DashboardPage() {
     setIsSpeaking(true);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const apiBase = getApiBase();
       const res = await fetch(`${apiBase}/api/voice/synthesize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -498,7 +508,7 @@ export default function DashboardPage() {
 
     setChatHistory((prev) => [...prev, tempMsg]);
 
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    const apiBase = getApiBase();
     try {
       const res = await fetch(`${apiBase}/api/advisor/chat`, {
         method: 'POST',

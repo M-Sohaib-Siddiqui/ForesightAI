@@ -16,7 +16,17 @@ export default function SignUpPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  const getApiBase = () => {
+    if (process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE_URL.includes('localhost')) {
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return 'https://foresightai-j8a2.onrender.com';
+    }
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  };
+
+  const apiBase = getApiBase();
 
   const handleInitiateSignUp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

@@ -97,9 +97,19 @@ export default function OnboardingPage() {
     return { headers, rows };
   };
 
+  const getApiBase = () => {
+    if (process.env.NEXT_PUBLIC_API_BASE_URL && !process.env.NEXT_PUBLIC_API_BASE_URL.includes('localhost')) {
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return 'https://foresightai-j8a2.onrender.com';
+    }
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  };
+
   const uploadFileToBackend = async (file: File, endpoint: string, companyName: string) => {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const apiBase = getApiBase();
       const bizName = companyName || localStorage.getItem('bf_business_name') || 'my_business';
       const formData = new FormData();
       formData.append('file', file);
@@ -294,7 +304,7 @@ export default function OnboardingPage() {
 
       localStorage.setItem('bf_business_profile', JSON.stringify(formattedProfile));
 
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+      const apiBase = getApiBase();
       await fetch(`${apiBase}/api/profile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
